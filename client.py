@@ -2,7 +2,7 @@ def main():
     print("Welcome to the Chat Application!")
     username = input("Enter your username: ")
     print(f"Hello, {username}! What would you like to do?")
-    
+
     while True:
         print("\nOptions:")
         print("1. Connect to a chat by specifying its ID.")
@@ -10,9 +10,9 @@ def main():
         print("3. Discover active chats.")
         print("4. Access insult channel.")
         print("5. Exit.")
-        
+
         option = input("Please choose an option (1-5): ")
-        
+
         if option == "1":
             # Placeholder for connect to chat functionality
             chat_id = input("Enter chat ID to connect: ")
@@ -33,6 +33,6 @@ def main():
         else:
             print("Invalid option. Please try again.")
 
+
 if __name__ == "__main__":
     main()
-
