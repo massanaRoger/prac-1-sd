@@ -1,6 +1,36 @@
+import json
+import socket
+
+# Redis params
+SERVER_IP = '127.0.0.1'
+SERVER_PORT = 12345
+
+
+def connect_individual_chat(username: str, client_ip='localhost'):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((SERVER_IP, SERVER_PORT))
+        client_port = s.getsockname()[1]
+
+        # Format to register user:
+        # ACTION -> REGISTER
+        # USERNAME -> user_id
+        # ADDRESS -> IP and PORT
+        register_message = {
+            "action": "REGISTER",
+            "username": username,
+            "address": {"ip": client_ip, "port": client_port}
+        }
+        s.sendall(json.dumps(register_message).encode('utf-8'))
+
+        # Wait ACK server
+        response = s.recv(1024)
+        print(f"Registration response: {response.decode('utf-8')}")
+
+
 def main():
     print("Welcome to the Chat Application!")
     username = input("Enter your username: ")
+
     print(f"Hello, {username}! What would you like to do?")
 
     while True:
@@ -16,7 +46,12 @@ def main():
         if option == "1":
             # Placeholder for connect to chat functionality
             chat_id = input("Enter chat ID to connect: ")
-            print(f"Connecting to chat {chat_id}... (functionality not implemented)")
+
+            connect_individual_chat(username)
+            print(f"Connecting to chat {chat_id}...")
+
+
+
         elif option == "2":
             # Placeholder for subscribe to group chat functionality
             chat_id = input("Enter group chat ID to subscribe: ")

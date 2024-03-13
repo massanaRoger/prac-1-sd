@@ -18,14 +18,15 @@ def handle_client_connection(client_socket: socket.socket, redis_conn: redis.Red
                 address = data["address"]
                 redis_conn.set(username, json.dumps(address))
                 print(f"Registered {username} with {address}")
+                client_socket.send(f"User: '{username}' registered with {address}!".encode('utf-8'))
             elif data["action"] == "LOOKUP":
                 username = data["username"]
                 result = redis_conn.get(username)
                 if result:
                     address = json.loads(result)
-                    client_socket.sendall(json.dumps({"status": "FOUND", "address": address}).encode('utf-8'))
+                    client_socket.sendall(json.dumps({"status": "FOUND", "username": username, "address": address}).encode('utf-8'))
                 else:
-                    client_socket.sendall(json.dumps({"status": "NOT FOUND"}).encode('utf-8'))
+                    client_socket.sendall(json.dumps({"status": "NOT FOUND", "username": username}).encode('utf-8'))
     except Exception as e:
         print(f"Error: {e}")
     finally:
