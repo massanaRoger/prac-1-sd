@@ -40,18 +40,18 @@ def main():
 
         # 1. Connect chat (private or group)
         if option == "1":
-            chat_id = input("Enter chat ID to connect: ")
-            if 0 < int(chat_id) <= 5:
+            chat_id = input("Enter chat ID to connect (1-100): ")
+            if 0 < int(chat_id) <= 10:
                 print("Entering private chat...")
                 # create a stub (client)
                 stub = grpc_chat_pb2_grpc.ChatServiceStub(channel)
 
-                # create a request message
-                request_message = grpc_chat_pb2.RegisterMessageRequest(chat_id=chat_id, username=username,
+                # create a register message
+                register_message = grpc_chat_pb2.RegisterMessageRequest(chat_id=chat_id, username=username,
                                                                        ip='localhost', port=get_unused_port())
-                stub.RegisterUser(request_message)
+                stub.RegisterUser(register_message)
 
-            elif 5 < int(chat_id) <= 10:
+            elif 10 < int(chat_id) <= 100:
                 print("Entering group chat...")
 
 

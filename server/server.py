@@ -37,12 +37,6 @@ def create_grpc_connection():
     server.start()
     server.wait_for_termination()
 
-    # try:
-    #     while True:
-    #         time.sleep(86400)
-    # except KeyboardInterrupt:
-    #     server.stop(0)
-
 
 if __name__ == "__main__":
     create_grpc_connection()
