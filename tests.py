@@ -15,7 +15,7 @@ def test_register_lookup(server_ip, server_port):
 
         # Wait ACK server
         response = s.recv(1024)
-        print(f"Registration response: {response.decode('utf-8')}")  # Optional: handle this response
+        print(f"Registration response: {response.decode('utf-8')}")
 
         lookup_message = {
             "action": "LOOKUP",

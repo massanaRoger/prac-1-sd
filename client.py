@@ -43,8 +43,8 @@ def main():
 
         option = input("Please choose an option (1-5): ")
 
+        # 1. Connect chat (private or group)
         if option == "1":
-            # Placeholder for connect to chat functionality
             chat_id = input("Enter chat ID to connect: ")
 
             connect_individual_chat(username)
@@ -53,14 +53,11 @@ def main():
 
 
         elif option == "2":
-            # Placeholder for subscribe to group chat functionality
             chat_id = input("Enter group chat ID to subscribe: ")
             print(f"Subscribing to group chat {chat_id}... (functionality not implemented)")
         elif option == "3":
-            # Placeholder for discover chats functionality
             print("Discovering active chats... (functionality not implemented)")
         elif option == "4":
-            # Placeholder for access insult channel functionality
             print("Accessing insult channel... (functionality not implemented)")
         elif option == "5":
             print("Exiting the application. Goodbye!")
