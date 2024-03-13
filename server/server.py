@@ -1,58 +1,48 @@
+from concurrent import futures
+import time
 import redis
-import socket
-import json
-from threading import Thread
+import grpc
+
+from protos import grpc_chat_pb2
+from protos import grpc_chat_pb2_grpc
+
+from services.chat_service import ChatService, chat_service
 
 
-def handle_client_connection(client_socket: socket.socket, redis_conn: redis.Redis):
-    try:
-        while True:
-            message = client_socket.recv(1024).decode('utf-8')
-            if not message:
-                break
+# create a class to define the server functions, derived from
+# grpc_chat_pb2_grpc.ChatServiceServicer
+class ChatServiceServicer(grpc_chat_pb2_grpc.ChatServiceServicer):
 
-            data = json.loads(message)
+    def RegisterUser(self, register_msg_request, context):
+        # Make register request and save the reply to the variable user_message
+        user_message = chat_service.register_user(register_msg_request.chat_id, register_msg_request.username,
+                                                  register_msg_request.ip, register_msg_request.port)
 
-            if data["action"] == "REGISTER":
-                username = data["username"]
-                address = data["address"]
-                redis_conn.set(username, json.dumps(address))
-                print(f"Registered {username} with {address}")
-                client_socket.send(f"User: '{username}' registered with {address}!".encode('utf-8'))
-            elif data["action"] == "LOOKUP":
-                username = data["username"]
-                result = redis_conn.get(username)
-                if result:
-                    address = json.loads(result)
-                    client_socket.sendall(json.dumps({"status": "FOUND", "username": username, "address": address}).encode('utf-8'))
-                else:
-                    client_socket.sendall(json.dumps({"status": "NOT FOUND", "username": username}).encode('utf-8'))
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        client_socket.close()
+        print("LOG: ", user_message.message)
+        return user_message
 
 
-def main():
-    redis_conn = redis.Redis(host='localhost', port=6379, db=0)
+def create_grpc_connection():
+    # Create server
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('0.0.0.0', 12345))
-    server_socket.listen(5)
-    print("Server listening on port 12345...")
+    # use the generated function `add_ChatServiceServicer_to_server`
+    # to add the defined class to the server
+    grpc_chat_pb2_grpc.add_ChatServiceServicer_to_server(
+        ChatServiceServicer(), server)
 
-    try:
-        while True:
-            client_socket, address = server_socket.accept()
-            print(f"Accepted connection from {address}")
-            client_handler = Thread(target=handle_client_connection,
-                                    args=(client_socket, redis_conn,))
-            client_handler.start()
-    except KeyboardInterrupt:
-        print("Server shutting down...")
-    finally:
-        server_socket.close()
+    # Listen to port 50051
+    print('Starting server. Listening on port 50051.')
+    server.add_insecure_port('0.0.0.0:50051')
+    server.start()
+    server.wait_for_termination()
+
+    # try:
+    #     while True:
+    #         time.sleep(86400)
+    # except KeyboardInterrupt:
+    #     server.stop(0)
 
 
 if __name__ == "__main__":
-    main()
+    create_grpc_connection()

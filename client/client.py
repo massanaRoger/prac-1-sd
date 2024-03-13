@@ -1,30 +1,25 @@
 import json
 import socket
+import grpc
+
+from protos import grpc_chat_pb2
+from protos import grpc_chat_pb2_grpc
 
 # Redis params
 SERVER_IP = '127.0.0.1'
 SERVER_PORT = 12345
 
+# open a gRPC channel
+channel = grpc.insecure_channel('localhost:50051')
 
-def connect_individual_chat(username: str, client_ip='localhost'):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((SERVER_IP, SERVER_PORT))
-        client_port = s.getsockname()[1]
 
-        # Format to register user:
-        # ACTION -> REGISTER
-        # USERNAME -> user_id
-        # ADDRESS -> IP and PORT
-        register_message = {
-            "action": "REGISTER",
-            "username": username,
-            "address": {"ip": client_ip, "port": client_port}
-        }
-        s.sendall(json.dumps(register_message).encode('utf-8'))
-
-        # Wait ACK server
-        response = s.recv(1024)
-        print(f"Registration response: {response.decode('utf-8')}")
+# Get unused port to stablish communication between hosts
+def get_unused_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('localhost', 0))
+    _, port = s.getsockname()
+    s.close()
+    return port
 
 
 def main():
@@ -46,10 +41,18 @@ def main():
         # 1. Connect chat (private or group)
         if option == "1":
             chat_id = input("Enter chat ID to connect: ")
+            if 0 < int(chat_id) <= 5:
+                print("Entering private chat...")
+                # create a stub (client)
+                stub = grpc_chat_pb2_grpc.ChatServiceStub(channel)
 
-            connect_individual_chat(username)
-            print(f"Connecting to chat {chat_id}...")
+                # create a request message
+                request_message = grpc_chat_pb2.RegisterMessageRequest(chat_id=chat_id, username=username,
+                                                                       ip='localhost', port=get_unused_port())
+                stub.RegisterUser(request_message)
 
+            elif 5 < int(chat_id) <= 10:
+                print("Entering group chat...")
 
 
         elif option == "2":

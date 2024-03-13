@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatService {
+  rpc RegisterUser(RegisterMessageRequest) returns (RegisterMessageReply) {}
+  rpc LookupUser(LookupUserRequest) returns (LookupUserReply) {}
+  rpc SendMessage(SendMessageRequest) returns (SendMessageReplay);
+}
+
+// The request message for registering a user.
+message RegisterMessageRequest {
+    string chat_id = 1;
+    string username = 2;
+    string ip = 3;
+    int64 port = 4;
+}
+
+// The reply message containing the registration status.
+message RegisterMessageReply {
+  string message = 1;
+}
+
+// The request message for looking up a user.
+message LookupUserRequest {
+  string username = 1;
+}
+
+// The reply message containing the lookup result.
+message LookupUserReply {
+  string status = 1;
+  string username = 2;
+  string ip = 3;
+  int32 port = 4;
+}
+
+// The message to send to a chat
+message SendMessageRequest {
+  string sender_username = 1;
+  string receiver_username = 2;
+  string message = 3;
+}
+
+// The response of delivering the message to a chat
+message SendMessageReplay {
+  bool success = 1;
+  string error = 2;
+}
