@@ -3,12 +3,13 @@ import redis
 import grpc
 import threading
 
+from client.MessagingServiceServicer import MessagingServiceServicer
+from utils import config
+
 from protos import grpc_user_pb2_grpc
 from UserServiceServicer import UserServiceServicer
 
 from protos import grpc_chat_pb2_grpc
-from protos.grpc_chat_pb2_grpc import MessagingServiceServicer
-from utils import config
 
 
 # create a class to define the server functions, derived from
@@ -38,7 +39,7 @@ def create_chat_server():
     # use the generated function `add_ChatServiceServicer_to_server`
     # to add the defined class to the server
     grpc_chat_pb2_grpc.add_MessagingServiceServicer_to_server(
-        MessagingServiceServicer(), server)
+        MessagingServiceServicer(server), server)
 
     print('\nStarting chat server... Listening on port 50052.')
     server.add_insecure_port(config.CHAT_SERVER)

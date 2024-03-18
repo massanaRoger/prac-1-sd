@@ -36,10 +36,10 @@ def generate_messages():
 
 
 def bidirectional_chat(stub_client):
-    responses = stub_client.BidirectionalChat(generate_messages())
-    for response in responses:
+    response = stub_client.BidirectionalChat(generate_messages())
+    for msg in response:
         print(
-            "Received message from %s: %s" % (response.sender, response.content)
+            f"Received message from {msg.sender}: {msg.content}"
         )
 
 
