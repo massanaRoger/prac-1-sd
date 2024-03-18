@@ -5,16 +5,14 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class RegisterMessageRequest(_message.Message):
-    __slots__ = ("chat_id", "username", "ip", "port")
-    CHAT_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("username", "ip", "port")
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     IP_FIELD_NUMBER: _ClassVar[int]
     PORT_FIELD_NUMBER: _ClassVar[int]
-    chat_id: str
     username: str
     ip: str
     port: int
-    def __init__(self, chat_id: _Optional[str] = ..., username: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
+    def __init__(self, username: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
 
 class RegisterMessageReply(_message.Message):
     __slots__ = ("message",)
@@ -34,11 +32,11 @@ class LookupUserReply(_message.Message):
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     IP_FIELD_NUMBER: _ClassVar[int]
     PORT_FIELD_NUMBER: _ClassVar[int]
-    status: str
+    status: bool
     username: str
     ip: str
     port: int
-    def __init__(self, status: _Optional[str] = ..., username: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
+    def __init__(self, status: bool = ..., username: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
 
 class SendMessageRequest(_message.Message):
     __slots__ = ("sender_username", "receiver_username", "message")

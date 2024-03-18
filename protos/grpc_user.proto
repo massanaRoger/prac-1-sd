@@ -2,18 +2,16 @@ syntax = "proto3";
 
 package chat;
 
-service ChatService {
+service UserService {
   rpc RegisterUser(RegisterMessageRequest) returns (RegisterMessageReply) {}
   rpc LookupUser(LookupUserRequest) returns (LookupUserReply) {}
-  rpc SendMessage(SendMessageRequest) returns (SendMessageReplay);
 }
 
 // The request message for registering a user.
 message RegisterMessageRequest {
-    string chat_id = 1;
-    string username = 2;
-    string ip = 3;
-    int64 port = 4;
+    string username = 1;
+    string ip = 2;
+    int64 port = 3;
 }
 
 // The reply message containing the registration status.
@@ -28,10 +26,10 @@ message LookupUserRequest {
 
 // The reply message containing the lookup result.
 message LookupUserReply {
-  string status = 1;
+  bool status = 1;
   string username = 2;
   string ip = 3;
-  int32 port = 4;
+  int64 port = 4;
 }
 
 // The message to send to a chat
