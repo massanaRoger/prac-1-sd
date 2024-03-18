@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package chat;
+
+service MessagingService {
+  rpc BidirectionalChat(stream Message) returns (stream Message) {}
+}
+
+message Message {
+  int64 timestamp = 1;
+  string sender = 2;
+  string receiver = 3;
+  string content = 4;
+}

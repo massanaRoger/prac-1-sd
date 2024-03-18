@@ -20,7 +20,6 @@ class UserService:
 
     def lookup_user(self, user_to_chat):
         redis_message = self.redis_client.get(user_to_chat)
-        print(redis_message)
         if redis_message is None:
             return grpc_user_pb2.LookupUserReply(status=False, username="", ip="", port=-1)
         else:

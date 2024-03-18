@@ -2,16 +2,15 @@ import socket
 import grpc
 import subprocess
 import time
-from concurrent import futures
+from utils import config
 
 from exceptions.private_chat_exception import PrivateChatException
 from protos import grpc_user_pb2
 from protos import grpc_user_pb2_grpc
-from services.user_service import UserService
 
-# Redis params
-SERVER_IP = '127.0.0.1'
-SERVER_PORT = 12345
+from protos import grpc_chat_pb2
+import multiprocessing
+
 
 
 # Get unused port to stablish communication between hosts
@@ -26,7 +25,7 @@ def get_unused_port():
 def run_chat_ui(chat_id, username):
     print(f"Starting chat UI for user: {username}...")
 
-    terminal_command = f"python3 ../services/chat_ui.py {chat_id} {username} {port}; exec bash"
+    terminal_command = f"python3 ../services/chat_ui_service.py {chat_id} {username} {port}; exec bash"
     subprocess.Popen(["gnome-terminal", "--", "bash", "-c", terminal_command])
     time.sleep(2)
 
@@ -40,26 +39,21 @@ def register_user(stub, username):
     return register_message
 
 
-def create_client_channel(ip, port):
-    client_server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
-
-    client_channel = grpc.insecure_channel(f"{ip}:{port}")
-    client_server.start()
-
-    return client_channel
+def start_redis_server_conn():
+    # open a gRPC channel to the server
+    channel = grpc.insecure_channel(config.REDIS_SERVER)
+    # create a stub_server (client)
+    stub_server = grpc_user_pb2_grpc.UserServiceStub(channel)
+    return stub_server
 
 
 def main():
-    # open a gRPC channel
-    channel = grpc.insecure_channel('localhost:50051')
+    # Start Redis server connection
+    stub_server = start_redis_server_conn()
 
     print("Welcome to the Chat Application!")
     username = input("Enter your username: ")
-
     print(f"Hello, {username}! What would you like to do?")
-
-    # create a stub (client)
-    stub = grpc_user_pb2_grpc.UserServiceStub(channel)
 
     # Register user before entering to the chat appication logic
     user_details = {
@@ -69,7 +63,7 @@ def main():
     }
 
     try:
-        user_details = register_user(stub, username)
+        user_details = register_user(stub_server, username)
     except PrivateChatException as p:
         print(f"ERROR! {username} is alredy chating!")
 
@@ -96,26 +90,24 @@ def main():
                         "or '2' for group chat: ")
                     if chat_type == '1':
 
-                        # 1. Create dedicated server for the user
-                        if not is_server_created:
-                            print(f"Creating server for user '{username}'...")
-                            create_client_channel(user_details.ip, user_details.port)
-                            print(f"Server created!")
-                            is_server_created = True
-
-                        # 2. Lookup user to chat with
+                        # 1. Lookup user to chat with
                         chat_type_correct = True
                         user_to_chat = input("Enter the name of the username to connect: ")
                         lookup_message = grpc_user_pb2.LookupUserRequest(username=user_to_chat)
-                        user_params = stub.LookupUser(lookup_message)
+                        user_params = stub_server.LookupUser(lookup_message)
 
                         if user_params.status is False:
                             print("User doesn't exist!")
                             break
 
                         print(f"User '{user_params.username}' found!")
-                        # 4. Start chat
-                        #run_chat_ui(user_to_chat, username)
+
+                        # 2. Start chat
+                        # Open dedicated terminal for the user
+                        print("Starting chat terminal...")
+                        subprocess.Popen(
+                            ["gnome-terminal", "--", "bash", "-c", f"python3 ../services/chat_ui_service.py {username} {user_to_chat};"
+                                                                   f"exec bash"])
 
 
                     elif chat_type == '2':
