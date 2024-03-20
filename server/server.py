@@ -32,29 +32,29 @@ def create_redis_connection():
     server.wait_for_termination()
 
 
-def create_chat_server():
-    # Create chat server
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-
-    # use the generated function `add_ChatServiceServicer_to_server`
-    # to add the defined class to the server
-    grpc_chat_pb2_grpc.add_MessagingServiceServicer_to_server(
-        MessagingServiceServicer(), server)
-
-    print('\nStarting chat server... Listening on port 50052.')
-    server.add_insecure_port(config.CHAT_SERVER)
-    server.start()
-    server.wait_for_termination()
+# def create_chat_server():
+#     # Create chat server
+#     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+#
+#     # use the generated function `add_ChatServiceServicer_to_server`
+#     # to add the defined class to the server
+#     grpc_chat_pb2_grpc.add_MessagingServiceServicer_to_server(
+#         MessagingServiceServicer(), server)
+#
+#     print('\nStarting chat server... Listening on port 50052.')
+#     server.add_insecure_port(config.CHAT_SERVER)
+#     server.start()
+#     server.wait_for_termination()
 
 
 if __name__ == "__main__":
     thread_grpc = threading.Thread(target=create_redis_connection)
-    thread_chat = threading.Thread(target=create_chat_server)
+    #thread_chat = threading.Thread(target=create_chat_server)
 
     # Start both servers
     thread_grpc.start()
-    thread_chat.start()
+    #thread_chat.start()
 
     # Wait to kill processes
     thread_grpc.join()
-    thread_chat.join()
+    #thread_chat.join()

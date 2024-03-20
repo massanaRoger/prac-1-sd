@@ -1,15 +1,42 @@
 import socket
+import threading
+
 import grpc
 import subprocess
 import time
 from utils import config
+from concurrent import futures
 
 from exceptions.private_chat_exception import PrivateChatException
-from protos import grpc_user_pb2
-from protos import grpc_user_pb2_grpc
+from protos import grpc_user_pb2, grpc_user_pb2_grpc, grpc_chat_pb2, grpc_chat_pb2_grpc
+import MessagingServiceServicer
 
 from protos import grpc_chat_pb2
 import multiprocessing
+
+
+# Connect to Redis server
+def start_redis_server_conn():
+    # open a gRPC channel to the server
+    channel = grpc.insecure_channel(config.REDIS_SERVER)
+    # create a stub_server (client)
+    stub_server = grpc_user_pb2_grpc.UserServiceStub(channel)
+    return stub_server
+
+
+# Start individual chat server
+def start_chat_server(ip, port):
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+
+    # use the generated function `add_MessagingServiceServicer_to_server`
+    # to add the defined class to the server
+    grpc_chat_pb2_grpc.add_MessagingServiceServicer_to_server(
+        MessagingServiceServicer.MessagingServiceServicer(), server)
+
+    print(f'\nStarting chat server... Listening on port {port}.')
+    server.add_insecure_port(f"{ip}:{port}")
+    server.start()
+    server.wait_for_termination()
 
 
 # Get unused port to stablish communication between hosts
@@ -21,6 +48,7 @@ def get_unused_port():
     return port
 
 
+# Register user to Redis server
 def register_user(stub, username):
     # create a register message
     register_message = grpc_user_pb2.RegisterMessageRequest(username=username,
@@ -30,18 +58,11 @@ def register_user(stub, username):
     return register_message
 
 
-def start_redis_server_conn():
-    # open a gRPC channel to the server
-    channel = grpc.insecure_channel(config.REDIS_SERVER)
-    # create a stub_server (client)
-    stub_server = grpc_user_pb2_grpc.UserServiceStub(channel)
-    return stub_server
-
-
 def main():
     # Start Redis server connection
     stub_server = start_redis_server_conn()
 
+    # Init chat application
     print("Welcome to the Chat Application!")
     username = input("Enter your username: ")
     print(f"Hello, {username}! What would you like to do?")
@@ -55,6 +76,10 @@ def main():
 
     try:
         sender_details = register_user(stub_server, username)
+        # Start individual chat server
+        chat_server_thread = threading.Thread(target=start_chat_server, args=(sender_details.ip, sender_details.port))
+        chat_server_thread.start()
+        chat_server_thread.join()
     except PrivateChatException as p:
         print(f"ERROR! {username} is alredy chating!")
 
@@ -85,28 +110,30 @@ def main():
                         chat_type_correct = True
                         user_to_chat = input("Enter the name of the username to connect: ")
                         lookup_message = grpc_user_pb2.LookupUserRequest(username=user_to_chat)
-                        reciever_details = stub_server.LookupUser(lookup_message)
+                        receiver_details = stub_server.LookupUser(lookup_message)
 
-                        if reciever_details.status is False:
+                        if receiver_details.status is False:
                             print("User doesn't exist!")
                             break
 
-                        print(f"User '{reciever_details.username}' found!")
+                        print(f"User '{receiver_details.username}' found!")
+                        print("Requesting connection...")
+                        # Format request message connection
+                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(sender_details.username, sender_details.ip, sender_details.port)
+                        # Create stub to the user to chat with
+                        stub_connection = grpc_chat_pb2_grpc.MessagingServiceStub(grpc.insecure_channel(receiver_details.port))
+                        # Try to create connection to the client
+                        connection_details = stub_connection.RequestConnection(request_conn_message)
 
-                        # 2. Start chat
-                        # Open dedicated terminal for the user
-                        print("Starting chat terminal...")
-                        # subprocess.Popen(
-                        #     ["gnome-terminal", "--", "bash", "-c",
-                        #      f"python3 ../services/chat_ui_service.py {sender_details.username} {reciever_details.username};"
-                        #      f"exec bash"])
+                        if connection_details.status is False:
+                            print("Connection refused!")
+                            break
 
-                        print("Please wait...")
-
+                        # Open dedicated terminal for the chat
+                        # Usage: python chat_ui_service.py [sender name] [receiver name] [receiver IP] [receiver port]
                         subprocess.Popen([
                             "gnome-terminal", "--", "bash", "-c",
-                            f"python3 ../services/chat_ui_service.py {sender_details.username} {sender_details.ip} {reciever_details.username} exec bash"
-                            f"socat TCP-LISTEN:{sender_details.port},fork EXEC:bash"
+                            f"python3 ../services/chat_ui_service.py {sender_details.username} {receiver_details.username} {receiver_details.ip} {receiver_details.port} exec bash"
                         ])
 
 

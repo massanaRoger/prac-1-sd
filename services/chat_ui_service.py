@@ -8,15 +8,15 @@ from utils import config
 
 
 class ChatUI:
-    def __init__(self):
-        self.sender = None
-        self.sender_ip = None
-        self.sender_port = None
-        self.receiver = None
+    def __init__(self, sender, receiver, receiver_ip, receiver_port):
+        self.sender = sender
+        self.receiver = receiver
+        self.receiver_ip = receiver_ip
+        self.receiver_port = receiver_port
 
     def start_chat_server_conn(self):
         # open a gRPC channel to the chat server
-        client_channel = grpc.insecure_channel(config.CHAT_SERVER)
+        client_channel = grpc.insecure_channel(f"{self.receiver_ip}:{self.receiver_port}")
         # create a stub_server (client)
         return grpc_chat_pb2_grpc.MessagingServiceStub(client_channel)
 
@@ -47,11 +47,7 @@ class ChatUI:
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: python chat_ui_service.py [your name] [your IP] [other person's name] [your port]")
+        print("Usage: python chat_ui_service.py [sender name] [receiver name] [receiver IP] [receiver port]")
     else:
-        chat_ui = ChatUI()
-        chat_ui.sender = sys.argv[1]
-        chat_ui.sender_ip = sys.argv[2]
-        chat_ui.sender_port = sys.argv[4]
-        chat_ui.receiver = sys.argv[3]
+        chat_ui = ChatUI(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
         chat_ui.run_chat()
