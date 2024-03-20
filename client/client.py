@@ -26,17 +26,17 @@ def start_redis_server_conn():
 
 # Start individual chat server
 def start_chat_server(ip, port):
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    individual_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # use the generated function `add_MessagingServiceServicer_to_server`
     # to add the defined class to the server
     grpc_chat_pb2_grpc.add_MessagingServiceServicer_to_server(
-        MessagingServiceServicer.MessagingServiceServicer(), server)
+        MessagingServiceServicer.MessagingServiceServicer(), individual_server)
 
     print(f'\nStarting chat server... Listening on port {port}.')
-    server.add_insecure_port(f"{ip}:{port}")
-    server.start()
-    server.wait_for_termination()
+    individual_server.add_insecure_port(f"{ip}:{port}")
+    individual_server.start()
+    individual_server.wait_for_termination()
 
 
 # Get unused port to stablish communication between hosts
@@ -74,14 +74,13 @@ def main():
         "port": 0
     }
 
-    try:
-        sender_details = register_user(stub_server, username)
-        # Start individual chat server
-        chat_server_thread = threading.Thread(target=start_chat_server, args=(sender_details.ip, sender_details.port))
-        chat_server_thread.start()
-        chat_server_thread.join()
-    except PrivateChatException as p:
-        print(f"ERROR! {username} is alredy chating!")
+    # Register user to Redis
+    sender_details = register_user(stub_server, username)
+
+    # Start individual chat server
+    chat_server_thread = threading.Thread(target=start_chat_server, args=(sender_details.ip, sender_details.port))
+    chat_server_thread.start()
+    time.sleep(1)
 
     in_chat = False  # Flag to indicate if the user is in a chat
 
@@ -119,9 +118,12 @@ def main():
                         print(f"User '{receiver_details.username}' found!")
                         print("Requesting connection...")
                         # Format request message connection
-                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(sender_details.username, sender_details.ip, sender_details.port)
+                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(username=sender_details.username,
+                                                                                      ip=sender_details.ip,
+                                                                                      port=sender_details.port)
                         # Create stub to the user to chat with
-                        stub_connection = grpc_chat_pb2_grpc.MessagingServiceStub(grpc.insecure_channel(receiver_details.port))
+                        stub_connection = grpc_chat_pb2_grpc.MessagingServiceStub(
+                            grpc.insecure_channel(receiver_details.port))
                         # Try to create connection to the client
                         connection_details = stub_connection.RequestConnection(request_conn_message)
 
@@ -159,6 +161,9 @@ def main():
                 print("Invalid option. Please try again.")
         else:
             time.sleep(1)  # Wait for the chat to finish
+
+    # Kill threads
+    chat_server_thread.join()
 
 
 if __name__ == "__main__":
