@@ -39,7 +39,7 @@ def create_chat_server():
     # use the generated function `add_ChatServiceServicer_to_server`
     # to add the defined class to the server
     grpc_chat_pb2_grpc.add_MessagingServiceServicer_to_server(
-        MessagingServiceServicer(server), server)
+        MessagingServiceServicer(), server)
 
     print('\nStarting chat server... Listening on port 50052.')
     server.add_insecure_port(config.CHAT_SERVER)

@@ -12,7 +12,6 @@ from protos import grpc_chat_pb2
 import multiprocessing
 
 
-
 # Get unused port to stablish communication between hosts
 def get_unused_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,14 +19,6 @@ def get_unused_port():
     _, port = s.getsockname()
     s.close()
     return port
-
-
-def run_chat_ui(chat_id, username):
-    print(f"Starting chat UI for user: {username}...")
-
-    terminal_command = f"python3 ../services/chat_ui_service.py {chat_id} {username} {port}; exec bash"
-    subprocess.Popen(["gnome-terminal", "--", "bash", "-c", terminal_command])
-    time.sleep(2)
 
 
 def register_user(stub, username):
@@ -56,14 +47,14 @@ def main():
     print(f"Hello, {username}! What would you like to do?")
 
     # Register user before entering to the chat appication logic
-    user_details = {
+    sender_details = {
         "username": "",
         "ip": "",
         "port": 0
     }
 
     try:
-        user_details = register_user(stub_server, username)
+        sender_details = register_user(stub_server, username)
     except PrivateChatException as p:
         print(f"ERROR! {username} is alredy chating!")
 
@@ -94,20 +85,29 @@ def main():
                         chat_type_correct = True
                         user_to_chat = input("Enter the name of the username to connect: ")
                         lookup_message = grpc_user_pb2.LookupUserRequest(username=user_to_chat)
-                        user_params = stub_server.LookupUser(lookup_message)
+                        reciever_details = stub_server.LookupUser(lookup_message)
 
-                        if user_params.status is False:
+                        if reciever_details.status is False:
                             print("User doesn't exist!")
                             break
 
-                        print(f"User '{user_params.username}' found!")
+                        print(f"User '{reciever_details.username}' found!")
 
                         # 2. Start chat
                         # Open dedicated terminal for the user
                         print("Starting chat terminal...")
-                        subprocess.Popen(
-                            ["gnome-terminal", "--", "bash", "-c", f"python3 ../services/chat_ui_service.py {username} {user_to_chat};"
-                                                                   f"exec bash"])
+                        # subprocess.Popen(
+                        #     ["gnome-terminal", "--", "bash", "-c",
+                        #      f"python3 ../services/chat_ui_service.py {sender_details.username} {reciever_details.username};"
+                        #      f"exec bash"])
+
+                        print("Please wait...")
+
+                        subprocess.Popen([
+                            "gnome-terminal", "--", "bash", "-c",
+                            f"python3 ../services/chat_ui_service.py {sender_details.username} {sender_details.ip} {reciever_details.username} exec bash"
+                            f"socat TCP-LISTEN:{sender_details.port},fork EXEC:bash"
+                        ])
 
 
                     elif chat_type == '2':
