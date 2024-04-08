@@ -16,6 +16,6 @@ class MessagingServiceServicer(grpc_chat_pb2_grpc.MessagingServiceServicer):
         # Create reciever terminal
         subprocess.Popen([
             "gnome-terminal", "--", "bash", "-c",
-            f"python3 ../services/chat_ui_service.py {request.name} {request.ip} {request.port} exec bash"
+            f"python3 ../services/chat_ui_service.py {request.sender} {request.receiver} {request.ip} {request.port} exec bash"
         ])
         return grpc_chat_pb2.ConnectionStatusReply(status=True)

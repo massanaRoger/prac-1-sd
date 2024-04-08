@@ -5,14 +5,16 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ConnectionMessageRequest(_message.Message):
-    __slots__ = ("username", "ip", "port")
-    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("sender", "receiver", "ip", "port")
+    SENDER_FIELD_NUMBER: _ClassVar[int]
+    RECEIVER_FIELD_NUMBER: _ClassVar[int]
     IP_FIELD_NUMBER: _ClassVar[int]
     PORT_FIELD_NUMBER: _ClassVar[int]
-    username: str
+    sender: str
+    receiver: str
     ip: str
     port: int
-    def __init__(self, username: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
+    def __init__(self, sender: _Optional[str] = ..., receiver: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
 
 class ConnectionStatusReply(_message.Message):
     __slots__ = ("status",)
@@ -21,13 +23,11 @@ class ConnectionStatusReply(_message.Message):
     def __init__(self, status: bool = ...) -> None: ...
 
 class Message(_message.Message):
-    __slots__ = ("timestamp", "sender", "receiver", "content")
+    __slots__ = ("timestamp", "sender", "content")
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     SENDER_FIELD_NUMBER: _ClassVar[int]
-    RECEIVER_FIELD_NUMBER: _ClassVar[int]
     CONTENT_FIELD_NUMBER: _ClassVar[int]
     timestamp: int
     sender: str
-    receiver: str
     content: str
-    def __init__(self, timestamp: _Optional[int] = ..., sender: _Optional[str] = ..., receiver: _Optional[str] = ..., content: _Optional[str] = ...) -> None: ...
+    def __init__(self, timestamp: _Optional[int] = ..., sender: _Optional[str] = ..., content: _Optional[str] = ...) -> None: ...

@@ -8,9 +8,10 @@ service MessagingService {
 }
 
 message ConnectionMessageRequest {
-  string username = 1;
-  string ip = 2;
-  int64 port = 3;
+  string sender = 1;
+  string receiver = 2;
+  string ip = 3;
+  int64 port = 4;
 }
 
 message ConnectionStatusReply {
@@ -20,6 +21,5 @@ message ConnectionStatusReply {
 message Message {
   int64 timestamp = 1;
   string sender = 2;
-  string receiver = 3;
-  string content = 4;
+  string content = 3;
 }

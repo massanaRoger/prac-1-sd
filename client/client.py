@@ -118,24 +118,25 @@ def main():
                         print(f"User '{receiver_details.username}' found!")
                         print("Requesting connection...")
                         # Format request message connection
-                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(username=sender_details.username,
+                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(sender=receiver_details.username,
+                                                                                      receiver=sender_details.username,
                                                                                       ip=sender_details.ip,
                                                                                       port=sender_details.port)
                         # Create stub to the user to chat with
                         stub_connection = grpc_chat_pb2_grpc.MessagingServiceStub(
-                            grpc.insecure_channel(receiver_details.port))
-                        # Try to create connection to the client
+                            grpc.insecure_channel(f"{receiver_details.ip}:{receiver_details.port}"))
+                        # Try to create connection to the client (from client 2 to client 1, this)
                         connection_details = stub_connection.RequestConnection(request_conn_message)
 
                         if connection_details.status is False:
                             print("Connection refused!")
                             break
 
-                        # Open dedicated terminal for the chat
+                        # Open dedicated terminal for the chat (from client 1 (this) to client 2)
                         # Usage: python chat_ui_service.py [sender name] [receiver name] [receiver IP] [receiver port]
                         subprocess.Popen([
                             "gnome-terminal", "--", "bash", "-c",
-                            f"python3 ../services/chat_ui_service.py {sender_details.username} {receiver_details.username} {receiver_details.ip} {receiver_details.port} exec bash"
+                            f"python3 ../services/chat_ui_service.py {username} {receiver_details.username} {receiver_details.ip} {receiver_details.port} exec bash"
                         ])
 
 
