@@ -27,7 +27,6 @@ class MessagingServiceServicer(grpc_chat_pb2_grpc.MessagingServiceServicer):
             return grpc_chat_pb2.ConnectionStatusReply(status=False)
 
     def SendMessage(self, request, context):
-        print("Message sent")
         message = {
             "timestamp": request.timestamp,
             "sender": request.sender,
@@ -41,8 +40,6 @@ class MessagingServiceServicer(grpc_chat_pb2_grpc.MessagingServiceServicer):
         while True:
             while len(self.messages) > last_index:
                 message = self.messages[last_index]
-                print("Message received")
-                print(self.messages[0])
                 last_index += 1
                 yield grpc_chat_pb2.Message(timestamp=message["timestamp"], sender=message["sender"], content=message["content"])
             time.sleep(0.5)
