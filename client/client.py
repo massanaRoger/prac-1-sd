@@ -118,10 +118,12 @@ def main():
                         print(f"User '{receiver_details.username}' found!")
                         print("Requesting connection...")
                         # Format request message connection
-                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(sender=receiver_details.username,
-                                                                                      receiver=sender_details.username,
-                                                                                      ip=sender_details.ip,
-                                                                                      port=sender_details.port)
+                        request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(client_1=receiver_details.username,
+                                                                                      client_1_ip=receiver_details.ip,
+                                                                                      client_1_port=receiver_details.port,
+                                                                                      client_2=sender_details.username,
+                                                                                      client_2_ip=sender_details.ip,
+                                                                                      client_2_port=sender_details.port)
                         # Create stub to the user to chat with
                         stub_connection = grpc_chat_pb2_grpc.MessagingServiceStub(
                             grpc.insecure_channel(f"{receiver_details.ip}:{receiver_details.port}"))
@@ -136,9 +138,8 @@ def main():
                         # Usage: python chat_ui_service.py [sender name] [receiver name] [receiver IP] [receiver port]
                         subprocess.Popen([
                             "gnome-terminal", "--", "bash", "-c",
-                            f"python3 ../services/chat_ui_service.py {username} {receiver_details.username} {sender_details.ip} {sender_details.port} exec bash"
+                            f"python3 ../services/chat_ui_service.py {sender_details.username} {sender_details.ip} {sender_details.port} {receiver_details.username} {receiver_details.ip} {receiver_details.port} exec bash"
                         ])
-
 
                     elif chat_type == '2':
                         chat_type_correct = True

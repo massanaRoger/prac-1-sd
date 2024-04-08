@@ -1,25 +1,36 @@
 syntax = "proto3";
-
 package chat;
 
+import "google/protobuf/empty.proto";
+
 service MessagingService {
-  rpc BidirectionalChat(stream Message) returns (stream Message) {}
+  // Request connection to the user to chat with
   rpc RequestConnection(ConnectionMessageRequest) returns (ConnectionStatusReply) {}
+
+  // Send a message
+  rpc SendMessage(Message) returns (Message) {}
+
+  // Receives a stream of messages
+  rpc StreamMessages(google.protobuf.Empty) returns (stream Message) {}
 }
 
+// Params of connection request (we need sender and receiver details)
 message ConnectionMessageRequest {
-  string sender = 1;
-  string receiver = 2;
-  string ip = 3;
-  int64 port = 4;
+  string client_1 = 1;
+  string client_1_ip = 2;
+  int64 client_1_port = 3;
+  string client_2 = 4;
+  string client_2_ip = 5;
+  int64 client_2_port = 6;
 }
 
+// Status - returns OK if can stablish connection
 message ConnectionStatusReply {
   bool status = 1;
 }
 
 message Message {
-  int64 timestamp = 1;
+  string timestamp = 1;
   string sender = 2;
   string content = 3;
 }

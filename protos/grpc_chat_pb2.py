@@ -12,21 +12,22 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16protos/grpc_chat.proto\x12\x04\x63hat\"V\n\x18\x43onnectionMessageRequest\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x10\n\x08receiver\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\x03\"\'\n\x15\x43onnectionStatusReply\x12\x0e\n\x06status\x18\x01 \x01(\x08\"=\n\x07Message\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t2\x9f\x01\n\x10MessagingService\x12\x37\n\x11\x42idirectionalChat\x12\r.chat.Message\x1a\r.chat.Message\"\x00(\x01\x30\x01\x12R\n\x11RequestConnection\x12\x1e.chat.ConnectionMessageRequest\x1a\x1b.chat.ConnectionStatusReply\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16protos/grpc_chat.proto\x12\x04\x63hat\x1a\x1bgoogle/protobuf/empty.proto\"\x96\x01\n\x18\x43onnectionMessageRequest\x12\x10\n\x08\x63lient_1\x18\x01 \x01(\t\x12\x13\n\x0b\x63lient_1_ip\x18\x02 \x01(\t\x12\x15\n\rclient_1_port\x18\x03 \x01(\x03\x12\x10\n\x08\x63lient_2\x18\x04 \x01(\t\x12\x13\n\x0b\x63lient_2_ip\x18\x05 \x01(\t\x12\x15\n\rclient_2_port\x18\x06 \x01(\x03\"\'\n\x15\x43onnectionStatusReply\x12\x0e\n\x06status\x18\x01 \x01(\x08\"=\n\x07Message\x12\x11\n\ttimestamp\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t2\xd2\x01\n\x10MessagingService\x12R\n\x11RequestConnection\x12\x1e.chat.ConnectionMessageRequest\x1a\x1b.chat.ConnectionStatusReply\"\x00\x12-\n\x0bSendMessage\x12\r.chat.Message\x1a\r.chat.Message\"\x00\x12;\n\x0eStreamMessages\x12\x16.google.protobuf.Empty\x1a\r.chat.Message\"\x00\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protos.grpc_chat_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_CONNECTIONMESSAGEREQUEST']._serialized_start=32
-  _globals['_CONNECTIONMESSAGEREQUEST']._serialized_end=118
-  _globals['_CONNECTIONSTATUSREPLY']._serialized_start=120
-  _globals['_CONNECTIONSTATUSREPLY']._serialized_end=159
-  _globals['_MESSAGE']._serialized_start=161
-  _globals['_MESSAGE']._serialized_end=222
-  _globals['_MESSAGINGSERVICE']._serialized_start=225
-  _globals['_MESSAGINGSERVICE']._serialized_end=384
+  _globals['_CONNECTIONMESSAGEREQUEST']._serialized_start=62
+  _globals['_CONNECTIONMESSAGEREQUEST']._serialized_end=212
+  _globals['_CONNECTIONSTATUSREPLY']._serialized_start=214
+  _globals['_CONNECTIONSTATUSREPLY']._serialized_end=253
+  _globals['_MESSAGE']._serialized_start=255
+  _globals['_MESSAGE']._serialized_end=316
+  _globals['_MESSAGINGSERVICE']._serialized_start=319
+  _globals['_MESSAGINGSERVICE']._serialized_end=529
 # @@protoc_insertion_point(module_scope)

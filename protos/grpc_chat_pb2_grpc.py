@@ -2,6 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from protos import grpc_chat_pb2 as protos_dot_grpc__chat__pb2
 
 
@@ -14,29 +15,43 @@ class MessagingServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.BidirectionalChat = channel.stream_stream(
-                '/chat.MessagingService/BidirectionalChat',
-                request_serializer=protos_dot_grpc__chat__pb2.Message.SerializeToString,
-                response_deserializer=protos_dot_grpc__chat__pb2.Message.FromString,
-                )
         self.RequestConnection = channel.unary_unary(
                 '/chat.MessagingService/RequestConnection',
                 request_serializer=protos_dot_grpc__chat__pb2.ConnectionMessageRequest.SerializeToString,
                 response_deserializer=protos_dot_grpc__chat__pb2.ConnectionStatusReply.FromString,
+                )
+        self.SendMessage = channel.unary_unary(
+                '/chat.MessagingService/SendMessage',
+                request_serializer=protos_dot_grpc__chat__pb2.Message.SerializeToString,
+                response_deserializer=protos_dot_grpc__chat__pb2.Message.FromString,
+                )
+        self.StreamMessages = channel.unary_stream(
+                '/chat.MessagingService/StreamMessages',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=protos_dot_grpc__chat__pb2.Message.FromString,
                 )
 
 
 class MessagingServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def BidirectionalChat(self, request_iterator, context):
-        """Missing associated documentation comment in .proto file."""
+    def RequestConnection(self, request, context):
+        """Request connection to the user to chat with
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def RequestConnection(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def SendMessage(self, request, context):
+        """Send a message
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def StreamMessages(self, request, context):
+        """Receives a stream of messages
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -44,15 +59,20 @@ class MessagingServiceServicer(object):
 
 def add_MessagingServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'BidirectionalChat': grpc.stream_stream_rpc_method_handler(
-                    servicer.BidirectionalChat,
-                    request_deserializer=protos_dot_grpc__chat__pb2.Message.FromString,
-                    response_serializer=protos_dot_grpc__chat__pb2.Message.SerializeToString,
-            ),
             'RequestConnection': grpc.unary_unary_rpc_method_handler(
                     servicer.RequestConnection,
                     request_deserializer=protos_dot_grpc__chat__pb2.ConnectionMessageRequest.FromString,
                     response_serializer=protos_dot_grpc__chat__pb2.ConnectionStatusReply.SerializeToString,
+            ),
+            'SendMessage': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendMessage,
+                    request_deserializer=protos_dot_grpc__chat__pb2.Message.FromString,
+                    response_serializer=protos_dot_grpc__chat__pb2.Message.SerializeToString,
+            ),
+            'StreamMessages': grpc.unary_stream_rpc_method_handler(
+                    servicer.StreamMessages,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=protos_dot_grpc__chat__pb2.Message.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -63,23 +83,6 @@ def add_MessagingServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class MessagingService(object):
     """Missing associated documentation comment in .proto file."""
-
-    @staticmethod
-    def BidirectionalChat(request_iterator,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/chat.MessagingService/BidirectionalChat',
-            protos_dot_grpc__chat__pb2.Message.SerializeToString,
-            protos_dot_grpc__chat__pb2.Message.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def RequestConnection(request,
@@ -95,5 +98,39 @@ class MessagingService(object):
         return grpc.experimental.unary_unary(request, target, '/chat.MessagingService/RequestConnection',
             protos_dot_grpc__chat__pb2.ConnectionMessageRequest.SerializeToString,
             protos_dot_grpc__chat__pb2.ConnectionStatusReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SendMessage(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.MessagingService/SendMessage',
+            protos_dot_grpc__chat__pb2.Message.SerializeToString,
+            protos_dot_grpc__chat__pb2.Message.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def StreamMessages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/chat.MessagingService/StreamMessages',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            protos_dot_grpc__chat__pb2.Message.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
