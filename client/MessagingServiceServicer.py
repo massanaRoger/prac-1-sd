@@ -9,6 +9,7 @@ class MessagingServiceServicer(grpc_chat_pb2_grpc.MessagingServiceServicer):
 
     def BidirectionalChat(self, request_iterator, context):
         for new_note in request_iterator:
+            print(new_note)
             yield new_note
 
     def RequestConnection(self, request, context):

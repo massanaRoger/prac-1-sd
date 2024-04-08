@@ -1,4 +1,5 @@
 import sys
+import threading
 import time
 from datetime import datetime
 
@@ -14,42 +15,48 @@ class ChatUI:
         self.receiver = receiver
         self.receiver_ip = receiver_ip
         self.receiver_port = receiver_port
-        self.stub_client = self.start_chat_server_conn()
+        self.client_channel = grpc.insecure_channel(f"{self.receiver_ip}:{self.receiver_port}")
+        self.stub_client = grpc_chat_pb2_grpc.MessagingServiceStub(self.client_channel)
+        self.receive_thread = threading.Thread(target=self.start_receiving_messages, daemon=True)
 
-    def start_chat_server_conn(self):
-        # open a gRPC channel to the client 2
-        client_channel = grpc.insecure_channel(f"{self.receiver_ip}:{self.receiver_port}")
-        # create a stub_server (client 2)
-        return grpc_chat_pb2_grpc.MessagingServiceStub(client_channel)
-
-    # Format of the user messages
     def make_message(self, message):
-        message_request = grpc_chat_pb2.Message(
+        # This method now only creates a message object, doesn't send it
+        return grpc_chat_pb2.Message(
             timestamp=int(time.time()),
             sender=self.sender,
             content=message
         )
-        self.stub_client.BidirectionalChat(message_request)
 
-        return message_request
-
-    # User input
     def generate_messages(self):
         while True:
-            message = input(f"")
+            message = input("")
             yield self.make_message(message)
 
-    def receive_messages(self, stub_client):
-        for msg in stub_client.BidirectionalChat(self.generate_messages()):
-            timestamp = datetime.fromtimestamp(msg.timestamp)
-            formatted_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
-            print(f"'{formatted_timestamp}' Message from '{msg.sender}': {msg.content}")
+    def send_messages(self, messages):
+        # This method handles sending messages to the server
+        for message in messages:
+            self.stub_client.BidirectionalChat(iter([message]))
+            print("Message sent")
 
-            
+    def start_receiving_messages(self):
+        try:
+            for msg in self.stub_client.BidirectionalChat(iter([])):
+                print("Message received")
+                timestamp = datetime.fromtimestamp(msg.timestamp)
+                formatted_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                print(f"'{formatted_timestamp}' Message from '{msg.sender}': {msg.content}")
+        except grpc.RpcError as err:
+            print(f"Disconnected")
 
     def run_chat(self):
         print("-------------- CHAT UI --------------")
-        self.receive_messages(self.stub_client)
+        self.receive_thread.start()
+
+        try:
+            self.send_messages(self.generate_messages())
+        except KeyboardInterrupt:
+            print("Chat ended")
+            self.client_channel.close()
 
 
 if __name__ == "__main__":

@@ -136,7 +136,7 @@ def main():
                         # Usage: python chat_ui_service.py [sender name] [receiver name] [receiver IP] [receiver port]
                         subprocess.Popen([
                             "gnome-terminal", "--", "bash", "-c",
-                            f"python3 ../services/chat_ui_service.py {username} {receiver_details.username} {receiver_details.ip} {receiver_details.port} exec bash"
+                            f"python3 ../services/chat_ui_service.py {username} {receiver_details.username} {sender_details.ip} {sender_details.port} exec bash"
                         ])
 
 
