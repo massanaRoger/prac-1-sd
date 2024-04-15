@@ -114,6 +114,7 @@ def main():
 
                 print(f"User '{receiver_details.username}' found!")
                 print("Requesting connection...")
+
                 # Format request message connection
                 request_conn_message = grpc_chat_pb2.ConnectionMessageRequest(
                     client_1=receiver_details.username,
@@ -122,9 +123,11 @@ def main():
                     client_2=sender_details.username,
                     client_2_ip=sender_details.ip,
                     client_2_port=sender_details.port)
+
                 # Create stub to the user to chat with
                 stub_connection = grpc_chat_pb2_grpc.MessagingServiceStub(
                     grpc.insecure_channel(f"{receiver_details.ip}:{receiver_details.port}"))
+
                 # Try to create connection to the client (from client 2 to client 1, this)
                 connection_details = stub_connection.RequestConnection(request_conn_message)
 
