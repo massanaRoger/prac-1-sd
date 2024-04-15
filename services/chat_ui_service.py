@@ -8,7 +8,7 @@ import grpc
 from protos import grpc_chat_pb2_grpc, grpc_chat_pb2
 
 
-class ChatUI:
+class PrivateChatUI:
     def __init__(self, sender, sender_ip, sender_port, receiver, receiver_ip, receiver_port):
         self.sender = sender
         self.sender_ip = sender_ip
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         print("Length:", len(sys.argv))
         time.sleep(2)
     else:
-        chat_ui = ChatUI(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+        chat_ui = PrivateChatUI(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
         print("CLIENT 1: ", sys.argv[1])
         print("CLIENT 1 IP: ", sys.argv[2])
         print("CLIENT 1 PORT: ", sys.argv[3])
