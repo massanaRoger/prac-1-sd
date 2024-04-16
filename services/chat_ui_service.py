@@ -53,8 +53,9 @@ class PrivateChatUI:
     def start_receiving_messages(self):
         try:
             for msg in self.stub_client_1.StreamMessages(grpc_chat_pb2.google_dot_protobuf_dot_empty__pb2.Empty()):
-                print("Message received")
-                print(f"'{msg.timestamp}' Message from '{msg.sender}': {msg.content}")
+                if self.sender not in msg.content:
+                    print("Message received")
+                    print(f"'{msg.timestamp}' Message from '{msg.sender}': {msg.content}")
         except grpc.RpcError as err:
             print(f"Disconnected")
             print(err.args)

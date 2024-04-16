@@ -36,7 +36,7 @@ def kill_processes():
 def main():
     try:
         run_server()
-        for i in range(1, 3):
+        for i in range(1, 4):
             run_client(i)
     except Exception as e:
         print("An error occurred:", e)

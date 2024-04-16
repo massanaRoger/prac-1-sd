@@ -1,6 +1,7 @@
 import sys
 import threading
 import time
+import traceback
 from datetime import datetime
 
 import pika
@@ -10,59 +11,76 @@ class GroupChatUI:
     def __init__(self, sender, chat_id):
         self.sender = sender
         self.chat_id = chat_id
-        self.queue_name = ""
 
-        # Setup RabbitMQ connection and channel
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-        self.channel = self.connection.channel()
-
-        # Declare the exchange
-        self.exchange_name = 'group_chat_exchange'
-        self.channel.exchange_declare(exchange=self.exchange_name, exchange_type='topic')
-
-        # Setup the queue for this chat_id
-        self.setup_chat_queue()
+        # RabbitMQ queue and exhcange names
+        self.queue_name = f'chat_{self.chat_id}_{self.sender}'
+        self.exchange_name = f'group_chat_{self.chat_id}_exchange'
 
         # Start thread to receive concurrent messages
         self.receive_thread = threading.Thread(target=self.start_receiving_messages, daemon=True)
 
     def setup_chat_queue(self):
-        self.queue_name = f'chat_{self.chat_id}'
-        self.channel.queue_declare(queue=self.queue_name, durable=True)
-        self.channel.queue_bind(exchange=self.exchange_name, queue=self.queue_name, routing_key=self.chat_id)
+        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+
+        # Declare a fanout exchange
+        channel.exchange_declare(exchange=self.exchange_name, exchange_type='fanout')
+
+        # Create a unique queue for each client
+        channel.queue_declare(queue=self.queue_name, durable=True)
+
+        # Bind this client's unique queue to the exchange
+        channel.queue_bind(exchange=self.exchange_name, queue=self.queue_name)
+
+        return channel
 
     def make_message(self, message):
         msg_time = int(time.time())
         timestamp = datetime.fromtimestamp(msg_time)
         formatted_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
-        return f"{formatted_timestamp} {self.sender}: {message}"
+        return f"{formatted_timestamp} from {self.sender}: {message}"
 
     def send_messages(self):
+        # Set up the queue for this chat_id
+        channel = self.setup_chat_queue()
+
         while True:
             message = input("")
             formatted_message = self.make_message(message)
-            self.channel.basic_publish(exchange=self.exchange_name, routing_key=self.chat_id,
-                                       body=formatted_message.encode())
+            channel.basic_publish(exchange=self.exchange_name, routing_key=self.chat_id,
+                                  body=formatted_message.encode())
 
             print("Message sent!")
 
     def start_receiving_messages(self):
         def callback(ch, method, properties, body):
-            print("Message received:", body.decode())
+            if self.sender not in body.decode():
+                print("Message received:", body.decode())
 
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=callback, auto_ack=True)
-        self.channel.start_consuming()
+        try:
+            # Set up the queue for this chat_id
+            channel = self.setup_chat_queue()
+
+            channel.basic_consume(queue=self.queue_name, on_message_callback=callback, auto_ack=True)
+            channel.start_consuming()
+
+        except Exception as e:
+            print("Error encountered:", e)
+            traceback.print_exc()  # This will print the stack trace to help identify where the error is occurring
+            time.sleep(10000)  # Consider adjusting or removing this based on your actual needs
 
     def run_chat(self):
-        print("-------------- CHAT UI --------------")
+        print("CHAT UI\n")
         self.receive_thread.start()
 
         try:
             self.send_messages()
         except KeyboardInterrupt:
             print("Chat ended")
-            self.connection.close()
+        except Exception as e:
+            print(e)
+            time.sleep(10)
 
 
 if __name__ == "__main__":
