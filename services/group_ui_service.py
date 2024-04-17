@@ -19,6 +19,9 @@ class GroupChatUI:
         # Start thread to receive concurrent messages
         self.receive_thread = threading.Thread(target=self.start_receiving_messages, daemon=True)
 
+    def __del__(self):
+        self.receive_thread.join()
+
     def setup_chat_queue(self):
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
         channel = connection.channel()
@@ -67,8 +70,8 @@ class GroupChatUI:
 
         except Exception as e:
             print("Error encountered:", e)
-            traceback.print_exc()  # This will print the stack trace to help identify where the error is occurring
-            time.sleep(10000)  # Consider adjusting or removing this based on your actual needs
+            traceback.print_exc()
+            time.sleep(10000)
 
     def run_chat(self):
         print("CHAT UI\n")

@@ -1,9 +1,12 @@
 import socket
 import threading
+import traceback
 
 import grpc
 import subprocess
 import time
+
+import discovery
 from utils import config
 from concurrent import futures
 
@@ -12,7 +15,7 @@ from protos import grpc_user_pb2, grpc_user_pb2_grpc, grpc_chat_pb2, grpc_chat_p
 import MessagingServiceServicer
 
 from protos import grpc_chat_pb2
-import multiprocessing
+import pika
 
 
 # Connect to Redis server
@@ -22,11 +25,6 @@ def start_redis_server_conn():
     # create a stub_server (client)
     stub_server = grpc_user_pb2_grpc.UserServiceStub(channel)
     return stub_server
-
-
-# Connect to a group chat using RabbitMQ
-def connect_group_chat():
-    return 0
 
 
 # Start individual chat server
@@ -63,16 +61,55 @@ def register_user(stub, username):
     return register_message
 
 
+def start_receiving_discovered_clients(username):
+    # 1. Creates a queue to receive all discovered clients
+    print("HOLAAAA")
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    discover_channel = connection.channel()
+    discover_channel.queue_declare(queue=f'{username}_discover_queue')
+
+    # 2. Send discover messages. body=username to send the discovered clients to the user discovery queue
+    discover_channel.basic_publish(exchange='discovery_exchange',
+                                   routing_key='',
+                                   body=username)
+    print("Missatge enviat")
+
+    # Function to stop consuming messages from the queue
+    def stop_consuming():
+        discover_channel.stop_consuming()
+        connection.close()
+        print("Stopped consuming")
+
+    # Method to return the messages of the queue
+    def callback(ch, method, properties, body):
+        print("Discovered users:", body.decode())
+
+    try:
+        timer = threading.Timer(5, stop_consuming)
+        timer.start()
+
+        # 3. Receive discovered clients
+        discover_channel.basic_consume(queue=f'{username}_discover_queue', on_message_callback=callback, auto_ack=True)
+        discover_channel.start_consuming()
+    except KeyboardInterrupt:
+        timer.cancel()
+
+
 def main():
     # Start Redis server connection
     stub_server = start_redis_server_conn()
 
     # Init chat application
     print("Welcome to the Chat Application!")
-    username = input("Enter your username: ")
+    username = None
+    while username is None or username.strip() == "":
+        username = input("Enter your username: ")
     print(f"Hello, {username}! What would you like to do?")
 
-    # Register user before entering to the chat appication logic
+    # Create a queue to receive 'discover' messages
+    discovery_channel = discovery.Discovery(username)
+
+    # Register user before entering to the chat application logic
     sender_details = {
         "username": "",
         "ip": "",
@@ -151,7 +188,19 @@ def main():
                 ])
 
             elif option == "3":
-                print("Discovering active chats... (functionality not implemented)")
+                print("Discovering active chats... Please wait")
+                # 1. Creates receiving queue
+                # 2. Send discover messages
+                # 3. Receive discovered clients
+                # 4. Join discover thread
+                discover_thread = threading.Thread(target=start_receiving_discovered_clients,
+                                                   args=[username], daemon=True)
+
+                time.sleep(5)
+                # 4. Join discover thread
+                # discover_thread.join()
+
+
             elif option == "4":
                 print("Accessing insult channel... (functionality not implemented)")
             elif option == "5":
