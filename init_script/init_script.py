@@ -61,12 +61,11 @@ def main():
     try:
         run_docker()
         run_server()
-        for i in range(1, 4):
+        for i in range(1, 3):
             run_client(i)
     except Exception as e:
         print("An error occurred:", e)
         kill_processes()
-
 
 
 if __name__ == "__main__":

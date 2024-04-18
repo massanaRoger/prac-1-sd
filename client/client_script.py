@@ -10,7 +10,6 @@ import discovery
 from utils import config
 from concurrent import futures
 
-from exceptions.private_chat_exception import PrivateChatException
 from protos import grpc_user_pb2, grpc_user_pb2_grpc, grpc_chat_pb2, grpc_chat_pb2_grpc
 import MessagingServiceServicer
 
@@ -61,38 +60,37 @@ def register_user(stub, username):
     return register_message
 
 
+def lookup_user(stub, username):
+    lookup_message = grpc_user_pb2.LookupUserRequest(username=username)
+    return stub.LookupUser(lookup_message)
+
+
 def start_receiving_discovered_clients(username):
-    # 1. Creates a queue to receive all discovered clients
-    print("HOLAAAA")
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    discover_channel = connection.channel()
-    discover_channel.queue_declare(queue=f'{username}_discover_queue')
-
-    # 2. Send discover messages. body=username to send the discovered clients to the user discovery queue
-    discover_channel.basic_publish(exchange='discovery_exchange',
-                                   routing_key='',
-                                   body=username)
-    print("Missatge enviat")
-
-    # Function to stop consuming messages from the queue
-    def stop_consuming():
-        discover_channel.stop_consuming()
-        connection.close()
-        print("Stopped consuming")
-
-    # Method to return the messages of the queue
-    def callback(ch, method, properties, body):
-        print("Discovered users:", body.decode())
-
     try:
-        timer = threading.Timer(5, stop_consuming)
-        timer.start()
+        discover_channel = connection.channel()
+        discover_channel.queue_declare(queue=f'{username}_discover_queue')
 
-        # 3. Receive discovered clients
+        discover_channel.basic_publish(exchange='discovery_exchange',
+                                       routing_key='',
+                                       body=username)
+
+        def callback(ch, method, properties, body):
+            print("Discovered users:", body.decode())
+
         discover_channel.basic_consume(queue=f'{username}_discover_queue', on_message_callback=callback, auto_ack=True)
-        discover_channel.start_consuming()
-    except KeyboardInterrupt:
-        timer.cancel()
+
+        # Handle events for 3 seconds. This blocks and processes incoming messages or other events.
+        connection.process_data_events(time_limit=3)
+
+        print("Timeout reached or done processing events, stopping consuming.")
+        discover_channel.stop_consuming()
+
+    except Exception as e:
+        print("Error during consuming:", e)
+    finally:
+        if connection.is_open:
+            connection.close()
 
 
 def main():
@@ -108,6 +106,7 @@ def main():
 
     # Create a queue to receive 'discover' messages
     discovery_channel = discovery.Discovery(username)
+    discovery_channel.receive_thread.start()
 
     # Register user before entering to the chat application logic
     sender_details = {
@@ -116,8 +115,13 @@ def main():
         "port": 0
     }
 
-    # Register user to Redis
-    sender_details = register_user(stub_server, username)
+    # Lookup if user already exists
+    user_exists = lookup_user(stub_server, username)
+
+    # If user doesn't exist, register to Re
+    if user_exists is not None:
+        # Register user to Redis
+        sender_details = register_user(stub_server, username)
 
     # Start individual chat server
     chat_server_thread = threading.Thread(target=start_private_chat_server,
@@ -142,8 +146,7 @@ def main():
             # 1. Connect chat (private or group)
             if option == "1":
                 chat_id = input("Enter the name of the username to connect: ")
-                lookup_message = grpc_user_pb2.LookupUserRequest(username=chat_id)
-                receiver_details = stub_server.LookupUser(lookup_message)
+                receiver_details = lookup_user(stub_server, chat_id)
 
                 if receiver_details.status is False:
                     print("User doesn't exist!")
@@ -181,6 +184,15 @@ def main():
 
             elif option == "2":
                 chat_id = input("Enter group name to subscribe: ")
+
+                # Look up if the group name already exists
+                lookup_group_chat = grpc_user_pb2.LookupUserRequest(username=chat_id)
+                response_details = stub_server.LookupUser(lookup_group_chat)
+
+                # Register group chat to Redis if not done yet
+                if response_details.status is False:
+                    group_chat_details = register_user(stub_server, chat_id)
+
                 print("Entering group chat...")
                 subprocess.Popen([
                     "gnome-terminal", "--", "bash", "-c",
@@ -194,9 +206,12 @@ def main():
                 # 3. Receive discovered clients
                 # 4. Join discover thread
                 discover_thread = threading.Thread(target=start_receiving_discovered_clients,
-                                                   args=[username], daemon=True)
+                                                   args=[username], daemon=False)
+                discover_thread.start()
+                time.sleep(1)
+                # Wait 5 seconds to obtain all users
+                # discover_thread.join()
 
-                time.sleep(5)
                 # 4. Join discover thread
                 # discover_thread.join()
 

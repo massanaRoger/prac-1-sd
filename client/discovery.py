@@ -43,7 +43,7 @@ class Discovery:
                 self.channel.basic_publish(exchange='',
                                            routing_key=f"{username}_discover_queue",
                                            body=self.user_id)
-                print("Discover message:", body.decode())
+                # print("Discover message:", body.decode())
 
         try:
             self.setup_discovery_user_queue()

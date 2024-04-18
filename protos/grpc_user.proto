@@ -3,8 +3,12 @@ syntax = "proto3";
 package chat;
 
 service UserService {
+  // Methods to register and find users
   rpc RegisterUser(RegisterMessageRequest) returns (RegisterMessageReply) {}
   rpc LookupUser(LookupUserRequest) returns (LookupUserReply) {}
+  // Methods to register and find group chats
+  rpc RegisterGroup(RegisterMessageRequest) returns (RegisterMessageReply) {}
+  rpc LookupGroup(LookupUserRequest) returns (LookupUserReply) {}
 }
 
 // The request message for registering a user.
