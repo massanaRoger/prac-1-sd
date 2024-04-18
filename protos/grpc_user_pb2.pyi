@@ -4,7 +4,7 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class RegisterMessageRequest(_message.Message):
+class RegisterUserMessageRequest(_message.Message):
     __slots__ = ("username", "ip", "port")
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     IP_FIELD_NUMBER: _ClassVar[int]
@@ -38,20 +38,22 @@ class LookupUserReply(_message.Message):
     port: int
     def __init__(self, status: bool = ..., username: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ...) -> None: ...
 
-class SendMessageRequest(_message.Message):
-    __slots__ = ("sender_username", "receiver_username", "message")
-    SENDER_USERNAME_FIELD_NUMBER: _ClassVar[int]
-    RECEIVER_USERNAME_FIELD_NUMBER: _ClassVar[int]
-    MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    sender_username: str
-    receiver_username: str
-    message: str
-    def __init__(self, sender_username: _Optional[str] = ..., receiver_username: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
+class RegisterGroupMessageRequest(_message.Message):
+    __slots__ = ("group_name",)
+    GROUP_NAME_FIELD_NUMBER: _ClassVar[int]
+    group_name: str
+    def __init__(self, group_name: _Optional[str] = ...) -> None: ...
 
-class SendMessageReplay(_message.Message):
-    __slots__ = ("success", "error")
-    SUCCESS_FIELD_NUMBER: _ClassVar[int]
-    ERROR_FIELD_NUMBER: _ClassVar[int]
-    success: bool
-    error: str
-    def __init__(self, success: bool = ..., error: _Optional[str] = ...) -> None: ...
+class LookupGroupRequest(_message.Message):
+    __slots__ = ("group_name",)
+    GROUP_NAME_FIELD_NUMBER: _ClassVar[int]
+    group_name: str
+    def __init__(self, group_name: _Optional[str] = ...) -> None: ...
+
+class LookupGroupReply(_message.Message):
+    __slots__ = ("status", "group_name")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    GROUP_NAME_FIELD_NUMBER: _ClassVar[int]
+    status: bool
+    group_name: str
+    def __init__(self, status: bool = ..., group_name: _Optional[str] = ...) -> None: ...

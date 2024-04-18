@@ -16,6 +16,20 @@ class UserServiceServicer(grpc_user_pb2_grpc.UserServiceServicer):
 
     def LookupUser(self, request, context):
         user = self.redis_service.lookup_user(request.username)
-
-        print(f"REDIS - Lookup: {user.username}")
+        if user.status is True:
+            print(f"REDIS - Lookup: {user.username}")
         return user
+
+    def RegisterGroup(self, register_msg_request, context):
+        # Make register request and save the reply to the variable user_message
+        group_message = self.redis_service.register_group(register_msg_request.group_name)
+
+        print("REDIS - Register: ", group_message.message)
+        return group_message
+
+    def LookupGroup(self, request, context):
+        group = self.redis_service.lookup_group(request.group_name)
+
+        if group.status is True:
+            print(f"REDIS - Lookup: {group.group_name}")
+        return group

@@ -16,7 +16,7 @@ class UserServiceStub(object):
         """
         self.RegisterUser = channel.unary_unary(
                 '/chat.UserService/RegisterUser',
-                request_serializer=protos_dot_grpc__user__pb2.RegisterMessageRequest.SerializeToString,
+                request_serializer=protos_dot_grpc__user__pb2.RegisterUserMessageRequest.SerializeToString,
                 response_deserializer=protos_dot_grpc__user__pb2.RegisterMessageReply.FromString,
                 )
         self.LookupUser = channel.unary_unary(
@@ -24,13 +24,24 @@ class UserServiceStub(object):
                 request_serializer=protos_dot_grpc__user__pb2.LookupUserRequest.SerializeToString,
                 response_deserializer=protos_dot_grpc__user__pb2.LookupUserReply.FromString,
                 )
+        self.RegisterGroup = channel.unary_unary(
+                '/chat.UserService/RegisterGroup',
+                request_serializer=protos_dot_grpc__user__pb2.RegisterGroupMessageRequest.SerializeToString,
+                response_deserializer=protos_dot_grpc__user__pb2.RegisterMessageReply.FromString,
+                )
+        self.LookupGroup = channel.unary_unary(
+                '/chat.UserService/LookupGroup',
+                request_serializer=protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
+                response_deserializer=protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
+                )
 
 
 class UserServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def RegisterUser(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Methods to register and find users
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -41,18 +52,41 @@ class UserServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RegisterGroup(self, request, context):
+        """Methods to register and find group chats
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def LookupGroup(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'RegisterUser': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterUser,
-                    request_deserializer=protos_dot_grpc__user__pb2.RegisterMessageRequest.FromString,
+                    request_deserializer=protos_dot_grpc__user__pb2.RegisterUserMessageRequest.FromString,
                     response_serializer=protos_dot_grpc__user__pb2.RegisterMessageReply.SerializeToString,
             ),
             'LookupUser': grpc.unary_unary_rpc_method_handler(
                     servicer.LookupUser,
                     request_deserializer=protos_dot_grpc__user__pb2.LookupUserRequest.FromString,
                     response_serializer=protos_dot_grpc__user__pb2.LookupUserReply.SerializeToString,
+            ),
+            'RegisterGroup': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterGroup,
+                    request_deserializer=protos_dot_grpc__user__pb2.RegisterGroupMessageRequest.FromString,
+                    response_serializer=protos_dot_grpc__user__pb2.RegisterMessageReply.SerializeToString,
+            ),
+            'LookupGroup': grpc.unary_unary_rpc_method_handler(
+                    servicer.LookupGroup,
+                    request_deserializer=protos_dot_grpc__user__pb2.LookupGroupRequest.FromString,
+                    response_serializer=protos_dot_grpc__user__pb2.LookupGroupReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -76,7 +110,7 @@ class UserService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/chat.UserService/RegisterUser',
-            protos_dot_grpc__user__pb2.RegisterMessageRequest.SerializeToString,
+            protos_dot_grpc__user__pb2.RegisterUserMessageRequest.SerializeToString,
             protos_dot_grpc__user__pb2.RegisterMessageReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -95,5 +129,39 @@ class UserService(object):
         return grpc.experimental.unary_unary(request, target, '/chat.UserService/LookupUser',
             protos_dot_grpc__user__pb2.LookupUserRequest.SerializeToString,
             protos_dot_grpc__user__pb2.LookupUserReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RegisterGroup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.UserService/RegisterGroup',
+            protos_dot_grpc__user__pb2.RegisterGroupMessageRequest.SerializeToString,
+            protos_dot_grpc__user__pb2.RegisterMessageReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def LookupGroup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.UserService/LookupGroup',
+            protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
+            protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

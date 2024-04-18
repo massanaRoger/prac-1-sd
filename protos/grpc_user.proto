@@ -4,15 +4,16 @@ package chat;
 
 service UserService {
   // Methods to register and find users
-  rpc RegisterUser(RegisterMessageRequest) returns (RegisterMessageReply) {}
+  rpc RegisterUser(RegisterUserMessageRequest) returns (RegisterMessageReply) {}
   rpc LookupUser(LookupUserRequest) returns (LookupUserReply) {}
+
   // Methods to register and find group chats
-  rpc RegisterGroup(RegisterMessageRequest) returns (RegisterMessageReply) {}
-  rpc LookupGroup(LookupUserRequest) returns (LookupUserReply) {}
+  rpc RegisterGroup(RegisterGroupMessageRequest) returns (RegisterMessageReply) {}
+  rpc LookupGroup(LookupGroupRequest) returns (LookupGroupReply) {}
 }
 
 // The request message for registering a user.
-message RegisterMessageRequest {
+message RegisterUserMessageRequest {
     string username = 1;
     string ip = 2;
     int64 port = 3;
@@ -36,15 +37,18 @@ message LookupUserReply {
   int64 port = 4;
 }
 
-// The message to send to a chat
-message SendMessageRequest {
-  string sender_username = 1;
-  string receiver_username = 2;
-  string message = 3;
+// The request message for registering a group.
+message RegisterGroupMessageRequest {
+    string group_name = 1;
 }
 
-// The response of delivering the message to a chat
-message SendMessageReplay {
-  bool success = 1;
-  string error = 2;
+// The request message for looking up a user.
+message LookupGroupRequest {
+  string group_name = 1;
+}
+
+// The reply message containing the lookup result.
+message LookupGroupReply {
+  bool status = 1;
+  string group_name = 2;
 }

@@ -26,3 +26,21 @@ class UserService:
             parsed_message = json.loads(redis_message)
             return grpc_user_pb2.LookupUserReply(status=True, username=user_to_chat, ip=parsed_message["ip"],
                                                  port=parsed_message["port"])
+
+    def register_group(self, group_name: str):
+
+        self.redis_client.set(group_name, group_name)
+        return grpc_user_pb2.RegisterMessageReply(message=f"The group '{group_name}'"
+                                                          f"has been registered to Redis!")
+
+    def lookup_group(self, group_name):
+        print("User service before lookup group")
+        redis_message = self.redis_client.get(group_name)
+        if redis_message is None:
+            return grpc_user_pb2.LookupGroupReply(status=False, group_name=group_name)
+
+        else:
+            return grpc_user_pb2.LookupGroupReply(status=True, group_name=group_name)
+
+
+

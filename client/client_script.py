@@ -52,17 +52,29 @@ def get_unused_port():
 
 # Register user to Redis server
 def register_user(stub, username):
-    # create a register message
-    register_message = grpc_user_pb2.RegisterMessageRequest(username=username,
-                                                            ip='localhost', port=get_unused_port())
-    message = stub.RegisterUser(register_message)
-    # print(message.message)
+    # Create a register message
+    register_message = grpc_user_pb2.RegisterUserMessageRequest(username=username,
+                                                                ip='localhost', port=get_unused_port())
+    stub.RegisterUser(register_message)
     return register_message
 
 
 def lookup_user(stub, username):
     lookup_message = grpc_user_pb2.LookupUserRequest(username=username)
     return stub.LookupUser(lookup_message)
+
+
+def register_group(stub, group_name):
+    # create a register group message
+    register_message = grpc_user_pb2.RegisterGroupMessageRequest(group_name=group_name)
+    message = stub.RegisterGroup(register_message)
+    # print(message.message)
+    return register_message
+
+
+def lookup_group(stub, group_name):
+    lookup_message = grpc_user_pb2.LookupGroupRequest(group_name=group_name)
+    return stub.LookupGroup(lookup_message)
 
 
 def start_receiving_discovered_clients(username):
@@ -108,18 +120,10 @@ def main():
     discovery_channel = discovery.Discovery(username)
     discovery_channel.receive_thread.start()
 
-    # Register user before entering to the chat application logic
-    sender_details = {
-        "username": "",
-        "ip": "",
-        "port": 0
-    }
-
     # Lookup if user already exists
-    user_exists = lookup_user(stub_server, username)
-
+    sender_details = lookup_user(stub_server, username)
     # If user doesn't exist, register to Re
-    if user_exists is not None:
+    if sender_details.status is False:
         # Register user to Redis
         sender_details = register_user(stub_server, username)
 
@@ -185,13 +189,14 @@ def main():
             elif option == "2":
                 chat_id = input("Enter group name to subscribe: ")
 
-                # Look up if the group name already exists
-                lookup_group_chat = grpc_user_pb2.LookupUserRequest(username=chat_id)
-                response_details = stub_server.LookupUser(lookup_group_chat)
+                # Look up if the group name already exists in Redis
+                group_exists = lookup_group(stub_server, chat_id)
+                if group_exists.status is False:
+                    # Register group chat to Redis if not done yet
+                    group_chat_details = register_group(stub_server, chat_id)
+                    print("GROUP REGISTER: ", group_chat_details)
 
-                # Register group chat to Redis if not done yet
-                if response_details.status is False:
-                    group_chat_details = register_user(stub_server, chat_id)
+                print("GROUP LOOKUP: ", group_exists)
 
                 print("Entering group chat...")
                 subprocess.Popen([
