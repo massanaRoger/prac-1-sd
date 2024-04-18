@@ -59,8 +59,12 @@ def kill_processes():
 
 def main():
     try:
+        print("Running RabbitMQ server...")
         run_docker()
+        time.sleep(2)
+        print("Running Redis server...")
         run_server()
+        print("Running clients...")
         for i in range(1, 3):
             run_client(i)
     except Exception as e:

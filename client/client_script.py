@@ -88,12 +88,21 @@ def start_receiving_discovered_clients(username):
                                        body=username)
 
         def callback(ch, method, properties, body):
-            print("Discovered users:", body.decode())
+            print(body.decode())
 
         discover_channel.basic_consume(queue=f'{username}_discover_queue', on_message_callback=callback, auto_ack=True)
 
         # Handle events for 3 seconds. This blocks and processes incoming messages or other events.
-        connection.process_data_events(time_limit=3)
+        # Start time for the timeout
+        start_time = time.time()
+        timeout_seconds = 3  # Timeout after 3 seconds
+
+        while True:
+            # Calculate elapsed time
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout_seconds:
+                break
+            connection.process_data_events(time_limit=1)  # Process events for 1 second
 
         print("Timeout reached or done processing events, stopping consuming.")
         discover_channel.stop_consuming()
@@ -117,7 +126,7 @@ def main():
     print(f"Hello, {username}! What would you like to do?")
 
     # Create a queue to receive 'discover' messages
-    discovery_channel = discovery.Discovery(username)
+    discovery_channel = discovery.Discovery(username, is_group=False)
     discovery_channel.receive_thread.start()
 
     # Lookup if user already exists
@@ -213,12 +222,8 @@ def main():
                 discover_thread = threading.Thread(target=start_receiving_discovered_clients,
                                                    args=[username], daemon=False)
                 discover_thread.start()
-                time.sleep(1)
-                # Wait 5 seconds to obtain all users
-                # discover_thread.join()
-
                 # 4. Join discover thread
-                # discover_thread.join()
+                discover_thread.join()
 
 
             elif option == "4":

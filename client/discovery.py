@@ -7,12 +7,13 @@ import pika
 
 class Discovery:
 
-    def __init__(self, user_id):
+    def __init__(self, name, is_group):
         self.channel = None
-        self.user_id = user_id
+        self.name = name
+        self.is_group = is_group
         self.connection = None
         self.discovery_exchange = "discovery_exchange"
-        self.queue = f"{user_id}_discovery_event_queue"
+        self.queue = f"{name}_discovery_event_queue"
         self.receive_thread = threading.Thread(target=self.start_receiving_discovery_events, daemon=True)
 
     def __del__(self):
@@ -37,12 +38,17 @@ class Discovery:
     def start_receiving_discovery_events(self):
         def callback(ch, method, properties, body):
             username = body.decode()
-            if self.user_id not in username:
+            if self.name not in username:
 
                 # Send username to discover client
-                self.channel.basic_publish(exchange='',
-                                           routing_key=f"{username}_discover_queue",
-                                           body=self.user_id)
+                if self.is_group:
+                    self.channel.basic_publish(exchange='',
+                                               routing_key=f"{username}_discover_queue",
+                                               body="Group: " + self.name)
+                else:
+                    self.channel.basic_publish(exchange='',
+                                               routing_key=f"{username}_discover_queue",
+                                               body="User: " + self.name)
                 # print("Discover message:", body.decode())
 
         try:

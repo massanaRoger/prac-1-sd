@@ -1,5 +1,6 @@
 import json
 
+from client.discovery import Discovery
 from protos import grpc_user_pb2
 
 
@@ -30,6 +31,8 @@ class UserService:
     def register_group(self, group_name: str):
 
         self.redis_client.set(group_name, group_name)
+        discovery_server = Discovery(group_name, is_group=True)
+        discovery_server.receive_thread.start()
         return grpc_user_pb2.RegisterMessageReply(message=f"The group '{group_name}'"
                                                           f"has been registered to Redis!")
 
