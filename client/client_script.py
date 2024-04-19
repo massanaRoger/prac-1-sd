@@ -163,7 +163,7 @@ def main():
 
                 if receiver_details.status is False:
                     print("User doesn't exist!")
-                    break
+                    continue
 
                 print(f"User '{receiver_details.username}' found!")
                 print("Requesting connection...")
@@ -227,7 +227,13 @@ def main():
 
 
             elif option == "4":
-                print("Accessing insult channel... (functionality not implemented)")
+                print("Entering insult chat...")
+                subprocess.Popen([
+                    "gnome-terminal", "--", "bash", "-c",
+                    f"python3 ../services/insult_ui_service.py exec bash"
+                ])
+
+
             elif option == "5":
                 print("Exiting the application. Goodbye!")
                 break
