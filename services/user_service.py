@@ -17,7 +17,7 @@ class UserService:
 
         self.redis_client.set(username, json.dumps(address))
         return grpc_user_pb2.RegisterMessageReply(message=f"The user '{username}' with IP: '{ip}' and PORT: '{port}' "
-                                                          f"has been registered to Redis!")
+                                                          f" has been registered to Redis!")
 
     def lookup_user(self, user_to_chat):
         redis_message = self.redis_client.get(user_to_chat)
@@ -34,7 +34,7 @@ class UserService:
         discovery_server = Discovery(group_name, is_group=True)
         discovery_server.receive_thread.start()
         return grpc_user_pb2.RegisterMessageReply(message=f"The group '{group_name}'"
-                                                          f"has been registered to Redis!")
+                                                          f" has been registered to Redis!")
 
     def lookup_group(self, group_name):
         num_users = self.redis_client.get(group_name)

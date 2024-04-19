@@ -1,3 +1,5 @@
+import os
+import signal
 import sys
 import threading
 import time
@@ -15,18 +17,22 @@ class GroupChatUI:
         # RabbitMQ queue and exhcange names
         self.queue_name = f'chat_{self.chat_id}_{self.sender}'
         self.exchange_name = f'group_chat_{self.chat_id}_exchange'
-        self.discovery_event_queue = f"{self.chat_id}_discovery_event_queue"
+        self.discovery_event_queue = f'{self.chat_id}_discovery_event_queue'
 
         # Start thread to receive concurrent messages
         self.receive_thread = threading.Thread(target=self.start_receiving_messages, daemon=True)
 
-    def __del__(self):
+    def cleanup(self):
+        print("Cleaning")
+        time.sleep(5)
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
         channel = connection.channel()
         channel.basic_publish(exchange='',
                               routing_key=self.discovery_event_queue,
                               body="remove_user")
-        self.receive_thread.join()
+        # self.receive_thread.join()
+        os.system('kill $$')
+
 
     def setup_chat_queue(self):
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -67,6 +73,9 @@ class GroupChatUI:
             if self.sender not in body.decode():
                 print("Message received:", body.decode())
 
+            if "exit" in body.decode():
+                self.cleanup()
+
         try:
             # Set up the queue for this chat_id
             channel = self.setup_chat_queue()
@@ -93,6 +102,7 @@ class GroupChatUI:
 
 
 if __name__ == "__main__":
+
     if len(sys.argv) < 4:
         print("Usage: python chat_ui_service.py [sender name] [chat ID]")
     else:

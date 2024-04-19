@@ -88,7 +88,9 @@ def main():
                 ])
 
             elif option == "2":
-                chat_id = input("Enter group name to subscribe: ")
+                chat_id = None
+                while chat_id is None or chat_id.strip() == "":
+                    chat_id = input("Enter group name to subscribe: ")
 
                 # Look up if the group name already exists in Redis
                 group_exists = lookup_group(stub_server, chat_id)
