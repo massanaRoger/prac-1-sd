@@ -19,10 +19,6 @@ class Discovery:
         self.receive_thread = threading.Thread(target=self.start_receiving_discovery_events, daemon=True)
         self.stub = start_redis_server_conn()
 
-    def __del__(self):
-        self.receive_thread.join()
-        self.connection.close()
-
     # Creates a queue for each connected client
     def setup_discovery_user_queue(self):
         # Create connection to RabbitMQ
@@ -45,7 +41,7 @@ class Discovery:
                 # Call remove_user servicer
                 group = delete_user_from_group(self.stub, self.name)
                 if group.num_users == 0:
-                    self.connection.close()
+                    self.channel.stop_consuming()
 
             username = body.decode()
             if self.name not in username:

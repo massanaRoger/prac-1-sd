@@ -61,7 +61,7 @@ def main():
     try:
         print("Running RabbitMQ server...")
         run_docker()
-        time.sleep(2)
+        time.sleep(5)
         print("Running Redis server...")
         run_server()
         print("Running clients...")

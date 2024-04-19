@@ -54,8 +54,10 @@ class UserService:
 
     def delete_user_from_group(self, group_name):
         group_details = self.lookup_group(group_name)
-        if group_details.num_users != 0:
+        if group_details.num_users > 1:
             new_num_users = group_details.num_users - 1
             self.redis_client.set(group_name, new_num_users)
             return grpc_user_pb2.LookupGroupReply(status=False, group_name=group_name, num_users=new_num_users)
+
+        self.redis_client.delete(group_name)
         return grpc_user_pb2.LookupGroupReply(status=False, group_name=group_name, num_users=0)

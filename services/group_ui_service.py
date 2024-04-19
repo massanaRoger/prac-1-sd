@@ -23,16 +23,12 @@ class GroupChatUI:
         self.receive_thread = threading.Thread(target=self.start_receiving_messages, daemon=True)
 
     def cleanup(self):
-        print("Cleaning")
-        time.sleep(5)
+        print("Cleaning...")
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
         channel = connection.channel()
         channel.basic_publish(exchange='',
                               routing_key=self.discovery_event_queue,
                               body="remove_user")
-        # self.receive_thread.join()
-        os.system('kill $$')
-
 
     def setup_chat_queue(self):
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -62,6 +58,9 @@ class GroupChatUI:
 
         while True:
             message = input("")
+            if "exit" in message:
+                self.cleanup()
+                return
             formatted_message = self.make_message(message)
             channel.basic_publish(exchange=self.exchange_name, routing_key=self.chat_id,
                                   body=formatted_message.encode())
@@ -72,9 +71,6 @@ class GroupChatUI:
         def callback(ch, method, properties, body):
             if self.sender not in body.decode():
                 print("Message received:", body.decode())
-
-            if "exit" in body.decode():
-                self.cleanup()
 
         try:
             # Set up the queue for this chat_id
