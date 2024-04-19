@@ -65,7 +65,7 @@ def main():
         print("Running Redis server...")
         run_server()
         print("Running clients...")
-        for i in range(1, 2):
+        for i in range(1, 3):
             run_client(i)
     except Exception as e:
         print("An error occurred:", e)

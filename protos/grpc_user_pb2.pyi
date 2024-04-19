@@ -51,9 +51,11 @@ class LookupGroupRequest(_message.Message):
     def __init__(self, group_name: _Optional[str] = ...) -> None: ...
 
 class LookupGroupReply(_message.Message):
-    __slots__ = ("status", "group_name")
+    __slots__ = ("status", "group_name", "num_users")
     STATUS_FIELD_NUMBER: _ClassVar[int]
     GROUP_NAME_FIELD_NUMBER: _ClassVar[int]
+    NUM_USERS_FIELD_NUMBER: _ClassVar[int]
     status: bool
     group_name: str
-    def __init__(self, status: bool = ..., group_name: _Optional[str] = ...) -> None: ...
+    num_users: int
+    def __init__(self, status: bool = ..., group_name: _Optional[str] = ..., num_users: _Optional[int] = ...) -> None: ...

@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16protos/grpc_user.proto\x12\x04\x63hat\"H\n\x1aRegisterUserMessageRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x03\"\'\n\x14RegisterMessageReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"%\n\x11LookupUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"M\n\x0fLookupUserReply\x12\x0e\n\x06status\x18\x01 \x01(\x08\x12\x10\n\x08username\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\x03\"1\n\x1bRegisterGroupMessageRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\"(\n\x12LookupGroupRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\"6\n\x10LookupGroupReply\x12\x0e\n\x06status\x18\x01 \x01(\x08\x12\x12\n\ngroup_name\x18\x02 \x01(\t2\xb2\x02\n\x0bUserService\x12N\n\x0cRegisterUser\x12 .chat.RegisterUserMessageRequest\x1a\x1a.chat.RegisterMessageReply\"\x00\x12>\n\nLookupUser\x12\x17.chat.LookupUserRequest\x1a\x15.chat.LookupUserReply\"\x00\x12P\n\rRegisterGroup\x12!.chat.RegisterGroupMessageRequest\x1a\x1a.chat.RegisterMessageReply\"\x00\x12\x41\n\x0bLookupGroup\x12\x18.chat.LookupGroupRequest\x1a\x16.chat.LookupGroupReply\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16protos/grpc_user.proto\x12\x04\x63hat\"H\n\x1aRegisterUserMessageRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x03\"\'\n\x14RegisterMessageReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"%\n\x11LookupUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"M\n\x0fLookupUserReply\x12\x0e\n\x06status\x18\x01 \x01(\x08\x12\x10\n\x08username\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\x03\"1\n\x1bRegisterGroupMessageRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\"(\n\x12LookupGroupRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\"I\n\x10LookupGroupReply\x12\x0e\n\x06status\x18\x01 \x01(\x08\x12\x12\n\ngroup_name\x18\x02 \x01(\t\x12\x11\n\tnum_users\x18\x03 \x01(\x03\x32\xc3\x03\n\x0bUserService\x12N\n\x0cRegisterUser\x12 .chat.RegisterUserMessageRequest\x1a\x1a.chat.RegisterMessageReply\"\x00\x12>\n\nLookupUser\x12\x17.chat.LookupUserRequest\x1a\x15.chat.LookupUserReply\"\x00\x12P\n\rRegisterGroup\x12!.chat.RegisterGroupMessageRequest\x1a\x1a.chat.RegisterMessageReply\"\x00\x12\x41\n\x0bLookupGroup\x12\x18.chat.LookupGroupRequest\x1a\x16.chat.LookupGroupReply\"\x00\x12\x44\n\x0e\x41\x64\x64UserToGroup\x12\x18.chat.LookupGroupRequest\x1a\x16.chat.LookupGroupReply\"\x00\x12I\n\x13\x44\x65leteUserFromGroup\x12\x18.chat.LookupGroupRequest\x1a\x16.chat.LookupGroupReply\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,7 +34,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_LOOKUPGROUPREQUEST']._serialized_start=316
   _globals['_LOOKUPGROUPREQUEST']._serialized_end=356
   _globals['_LOOKUPGROUPREPLY']._serialized_start=358
-  _globals['_LOOKUPGROUPREPLY']._serialized_end=412
-  _globals['_USERSERVICE']._serialized_start=415
-  _globals['_USERSERVICE']._serialized_end=721
+  _globals['_LOOKUPGROUPREPLY']._serialized_end=431
+  _globals['_USERSERVICE']._serialized_start=434
+  _globals['_USERSERVICE']._serialized_end=885
 # @@protoc_insertion_point(module_scope)

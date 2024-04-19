@@ -10,6 +10,10 @@ service UserService {
   // Methods to register and find group chats
   rpc RegisterGroup(RegisterGroupMessageRequest) returns (RegisterMessageReply) {}
   rpc LookupGroup(LookupGroupRequest) returns (LookupGroupReply) {}
+
+  // Methods to manage users connected to a group
+  rpc AddUserToGroup(LookupGroupRequest) returns (LookupGroupReply) {}
+  rpc DeleteUserFromGroup(LookupGroupRequest) returns (LookupGroupReply) {}
 }
 
 // The request message for registering a user.
@@ -51,4 +55,5 @@ message LookupGroupRequest {
 message LookupGroupReply {
   bool status = 1;
   string group_name = 2;
+  int64 num_users = 3;
 }

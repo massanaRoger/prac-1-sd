@@ -28,8 +28,23 @@ class UserServiceServicer(grpc_user_pb2_grpc.UserServiceServicer):
         return group_message
 
     def LookupGroup(self, request, context):
-        group = self.redis_service.lookup_group(request.group_name)
 
+        group = self.redis_service.lookup_group(request.group_name)
         if group.status is True:
             print(f"REDIS - Lookup: {group.group_name}")
         return group
+
+    def AddUserToGroup(self, request, context):
+        group = self.redis_service.add_user_to_group(request.group_name)
+
+        if group.status is True:
+            print(f"REDIS - An user entered to the group chat: {group.group_name} - TOTAL: {group.num_users}")
+        return group
+
+    def DeleteUserFromGroup(self, request, context):
+        group = self.redis_service.delete_user_from_group(request.group_name)
+
+        if group.status is True:
+            print(f"REDIS - An user has left the group chat: {group.group_name} - TOTAL: {group.num_users}")
+        return group
+

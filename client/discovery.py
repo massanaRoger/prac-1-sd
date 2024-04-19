@@ -4,6 +4,8 @@ import traceback
 
 import pika
 
+from utils.utilities import start_redis_server_conn, delete_user_from_group
+
 
 class Discovery:
 
@@ -15,6 +17,7 @@ class Discovery:
         self.discovery_exchange = "discovery_exchange"
         self.queue = f"{name}_discovery_event_queue"
         self.receive_thread = threading.Thread(target=self.start_receiving_discovery_events, daemon=True)
+        self.stub = start_redis_server_conn()
 
     def __del__(self):
         self.receive_thread.join()
@@ -37,6 +40,13 @@ class Discovery:
 
     def start_receiving_discovery_events(self):
         def callback(ch, method, properties, body):
+            if body.decode() == 'remove_user' and self.is_group:
+                print("Removed user")
+                # Call remove_user servicer
+                group = delete_user_from_group(self.stub, self.name)
+                if group.num_users == 0:
+                    self.connection.close()
+
             username = body.decode()
             if self.name not in username:
 

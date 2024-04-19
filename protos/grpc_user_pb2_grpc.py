@@ -34,6 +34,16 @@ class UserServiceStub(object):
                 request_serializer=protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
                 response_deserializer=protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
                 )
+        self.AddUserToGroup = channel.unary_unary(
+                '/chat.UserService/AddUserToGroup',
+                request_serializer=protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
+                response_deserializer=protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
+                )
+        self.DeleteUserFromGroup = channel.unary_unary(
+                '/chat.UserService/DeleteUserFromGroup',
+                request_serializer=protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
+                response_deserializer=protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
+                )
 
 
 class UserServiceServicer(object):
@@ -65,6 +75,19 @@ class UserServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddUserToGroup(self, request, context):
+        """Methods to manage users connected to a group
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteUserFromGroup(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -85,6 +108,16 @@ def add_UserServiceServicer_to_server(servicer, server):
             ),
             'LookupGroup': grpc.unary_unary_rpc_method_handler(
                     servicer.LookupGroup,
+                    request_deserializer=protos_dot_grpc__user__pb2.LookupGroupRequest.FromString,
+                    response_serializer=protos_dot_grpc__user__pb2.LookupGroupReply.SerializeToString,
+            ),
+            'AddUserToGroup': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddUserToGroup,
+                    request_deserializer=protos_dot_grpc__user__pb2.LookupGroupRequest.FromString,
+                    response_serializer=protos_dot_grpc__user__pb2.LookupGroupReply.SerializeToString,
+            ),
+            'DeleteUserFromGroup': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteUserFromGroup,
                     request_deserializer=protos_dot_grpc__user__pb2.LookupGroupRequest.FromString,
                     response_serializer=protos_dot_grpc__user__pb2.LookupGroupReply.SerializeToString,
             ),
@@ -161,6 +194,40 @@ class UserService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/chat.UserService/LookupGroup',
+            protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
+            protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def AddUserToGroup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.UserService/AddUserToGroup',
+            protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
+            protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteUserFromGroup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.UserService/DeleteUserFromGroup',
             protos_dot_grpc__user__pb2.LookupGroupRequest.SerializeToString,
             protos_dot_grpc__user__pb2.LookupGroupReply.FromString,
             options, channel_credentials,

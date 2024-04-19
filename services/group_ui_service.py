@@ -15,11 +15,17 @@ class GroupChatUI:
         # RabbitMQ queue and exhcange names
         self.queue_name = f'chat_{self.chat_id}_{self.sender}'
         self.exchange_name = f'group_chat_{self.chat_id}_exchange'
+        self.discovery_event_queue = f"{self.chat_id}_discovery_event_queue"
 
         # Start thread to receive concurrent messages
         self.receive_thread = threading.Thread(target=self.start_receiving_messages, daemon=True)
 
     def __del__(self):
+        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+        channel.basic_publish(exchange='',
+                              routing_key=self.discovery_event_queue,
+                              body="remove_user")
         self.receive_thread.join()
 
     def setup_chat_queue(self):
