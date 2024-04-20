@@ -2,6 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from protos import grpc_user_pb2 as protos_dot_grpc__user__pb2
 
 
@@ -18,6 +19,11 @@ class UserServiceStub(object):
                 '/chat.UserService/RegisterUser',
                 request_serializer=protos_dot_grpc__user__pb2.RegisterUserMessageRequest.SerializeToString,
                 response_deserializer=protos_dot_grpc__user__pb2.RegisterMessageReply.FromString,
+                )
+        self.RemoveUser = channel.unary_unary(
+                '/chat.UserService/RemoveUser',
+                request_serializer=protos_dot_grpc__user__pb2.LookupUserRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.LookupUser = channel.unary_unary(
                 '/chat.UserService/LookupUser',
@@ -50,8 +56,14 @@ class UserServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def RegisterUser(self, request, context):
-        """Methods to register and find users
+        """Methods to register, delete and find users
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -95,6 +107,11 @@ def add_UserServiceServicer_to_server(servicer, server):
                     servicer.RegisterUser,
                     request_deserializer=protos_dot_grpc__user__pb2.RegisterUserMessageRequest.FromString,
                     response_serializer=protos_dot_grpc__user__pb2.RegisterMessageReply.SerializeToString,
+            ),
+            'RemoveUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveUser,
+                    request_deserializer=protos_dot_grpc__user__pb2.LookupUserRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'LookupUser': grpc.unary_unary_rpc_method_handler(
                     servicer.LookupUser,
@@ -145,6 +162,23 @@ class UserService(object):
         return grpc.experimental.unary_unary(request, target, '/chat.UserService/RegisterUser',
             protos_dot_grpc__user__pb2.RegisterUserMessageRequest.SerializeToString,
             protos_dot_grpc__user__pb2.RegisterMessageReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RemoveUser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.UserService/RemoveUser',
+            protos_dot_grpc__user__pb2.LookupUserRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

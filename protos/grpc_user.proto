@@ -1,10 +1,12 @@
 syntax = "proto3";
+import "google/protobuf/empty.proto";
 
 package chat;
 
 service UserService {
-  // Methods to register and find users
+  // Methods to register, delete and find users
   rpc RegisterUser(RegisterUserMessageRequest) returns (RegisterMessageReply) {}
+  rpc RemoveUser(LookupUserRequest) returns (google.protobuf.Empty) {}
   rpc LookupUser(LookupUserRequest) returns (LookupUserReply) {}
 
   // Methods to register and find group chats

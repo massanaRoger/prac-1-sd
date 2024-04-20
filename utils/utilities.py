@@ -52,6 +52,11 @@ def register_user(stub, username):
     return register_message
 
 
+def remove_user(stub, username):
+    user_to_remove = grpc_user_pb2.LookupUserRequest(username=username)
+    return stub.RemoveUser(user_to_remove)
+
+
 def lookup_user(stub, username):
     lookup_message = grpc_user_pb2.LookupUserRequest(username=username)
     return stub.LookupUser(lookup_message)
@@ -108,7 +113,7 @@ def start_receiving_discovered_clients(username):
                 break
             connection.process_data_events(time_limit=1)  # Process events for 1 second
 
-        print("Timeout reached or done processing events, stopping consuming.")
+        print("No more clients found")
         discover_channel.stop_consuming()
 
     except Exception as e:

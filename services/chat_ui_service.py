@@ -45,7 +45,9 @@ class PrivateChatUI:
     def send_messages(self):
         # This method handles sending messages to the server
         while True:
-            message = input("")
+            message = None
+            while message is None or message.strip() == "":
+                message = input("")
             message_request = self.make_message(message)
             self.stub_client_2.SendMessage(message_request)
 
@@ -53,8 +55,7 @@ class PrivateChatUI:
     def start_receiving_messages(self):
         try:
             for msg in self.stub_client_1.StreamMessages(grpc_chat_pb2.google_dot_protobuf_dot_empty__pb2.Empty()):
-                if self.sender not in msg.content:
-                    print("Message received")
+                if msg.sender == self.receiver:
                     print(f"'{msg.timestamp}' Message from '{msg.sender}': {msg.content}")
         except grpc.RpcError as err:
             print(f"Disconnected")

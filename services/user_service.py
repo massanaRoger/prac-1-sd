@@ -19,6 +19,9 @@ class UserService:
         return grpc_user_pb2.RegisterMessageReply(message=f"The user '{username}' with IP: '{ip}' and PORT: '{port}' "
                                                           f" has been registered to Redis!")
 
+    def remove_user(self, username: str):
+        self.redis_client.delete(username)
+
     def lookup_user(self, user_to_chat):
         redis_message = self.redis_client.get(user_to_chat)
         if redis_message is None:

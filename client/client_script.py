@@ -50,7 +50,7 @@ def main():
 
             # 1. Connect chat (private or group)
             if option == "1":
-                chat_id = input("Enter the name of the username to connect: ")
+                chat_id = input("Enter the name of the client to connect: ")
                 receiver_details = lookup_user(stub_server, chat_id)
 
                 if receiver_details.status is False:
@@ -78,7 +78,7 @@ def main():
 
                 if connection_details.status is False:
                     print("Connection refused!")
-                    break
+                    continue
 
                 # Open dedicated terminal for the chat (from client 1 (this) to client 2)
                 # Usage: python chat_ui_service.py [sender name] [receiver name] [receiver IP] [receiver port]
@@ -130,7 +130,8 @@ def main():
 
             elif option == "5":
                 print("Exiting the application. Goodbye!")
-                break
+                remove_user(stub_server, username)
+                return
             else:
                 print("Invalid option. Please try again.")
         else:

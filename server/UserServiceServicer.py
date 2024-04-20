@@ -1,4 +1,4 @@
-from protos import grpc_user_pb2_grpc
+from protos import grpc_user_pb2_grpc, grpc_chat_pb2
 from services.user_service import UserService
 
 
@@ -13,6 +13,10 @@ class UserServiceServicer(grpc_user_pb2_grpc.UserServiceServicer):
 
         print("REDIS - Register: ", user_message.message)
         return user_message
+
+    def RemoveUser(self, request, context):
+        self.redis_service.remove_user(request.username)
+        return grpc_chat_pb2.google_dot_protobuf_dot_empty__pb2.Empty()
 
     def LookupUser(self, request, context):
         user = self.redis_service.lookup_user(request.username)

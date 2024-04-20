@@ -53,36 +53,44 @@ class GroupChatUI:
         return f"{formatted_timestamp} from {self.sender}: {message}"
 
     def send_messages(self):
-        # Set up the queue for this chat_id
         channel = self.setup_chat_queue()
 
         while True:
-            message = input("")
+            message = None
+            while message is None or message.strip() == "":
+                message = input("")
             if "exit" in message:
                 self.cleanup()
                 return
             formatted_message = self.make_message(message)
-            channel.basic_publish(exchange=self.exchange_name, routing_key=self.chat_id,
-                                  body=formatted_message.encode())
+            properties = pika.BasicProperties(headers={'sender': self.sender})
+            channel.basic_publish(
+                exchange=self.exchange_name,
+                routing_key=self.chat_id,
+                body=formatted_message.encode(),
+                properties=properties
+            )
 
             print("Message sent!")
 
     def start_receiving_messages(self):
         def callback(ch, method, properties, body):
-            if self.sender not in body.decode():
+            if properties.headers and properties.headers.get('sender') != self.sender:
                 print("Message received:", body.decode())
 
         try:
-            # Set up the queue for this chat_id
             channel = self.setup_chat_queue()
-
-            channel.basic_consume(queue=self.queue_name, on_message_callback=callback, auto_ack=True)
+            channel.basic_consume(
+                queue=self.queue_name,
+                on_message_callback=callback,
+                auto_ack=True
+            )
             channel.start_consuming()
 
         except Exception as e:
             print("Error encountered:", e)
             traceback.print_exc()
-            time.sleep(10000)
+            time.sleep(10)
 
     def run_chat(self):
         print("CHAT UI\n")
