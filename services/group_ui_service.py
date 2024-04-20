@@ -14,7 +14,7 @@ class GroupChatUI:
         self.sender = sender
         self.chat_id = chat_id
 
-        # RabbitMQ queue and exhcange names
+        # RabbitMQ queue and exchange names
         self.queue_name = f'chat_{self.chat_id}_{self.sender}'
         self.exchange_name = f'group_chat_{self.chat_id}_exchange'
         self.discovery_event_queue = f'{self.chat_id}_discovery_event_queue'
