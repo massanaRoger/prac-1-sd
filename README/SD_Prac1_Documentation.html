@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Online chat application</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="online-chat-application">Online chat application</h1>
+<p><strong>Subject:</strong> Distributed Systems</p>
+<p><strong>Students:</strong></p>
+<ul>
+<li>Roger Massana López</li>
+<li>Eros Vilar Subirats</li>
+</ul>
+<h2 id="abstract">Abstract</h2>
+<p>Este proyecto tiene como objetivo desarrollar una aplicación de chat en línea utilizando patrones de comunicación distribuidos en Python. La aplicación permitirá a múltiples clientes conectarse a un servidor central para participar en chats privados y grupales. Utilizaremos gRPC para los chats privados, asegurando una comunicación directa y eficiente entre dos clientes. Para los chats grupales, implementaremos el modelo pubsub usando RabbitMQ, permitiendo mensajes tanto transitorios como persistentes para garantizar la entrega confiable y la recuperación de mensajes después de desconexiones. Además, integraremos Redis como un servidor de nombres para gestionar los espacios de nombres de chat y las direcciones de conexión. El sistema también incluirá un canal de insultos utilizando colas de RabbitMQ para enviar mensajes a un cliente aleatorio conectado. Este diseño proporciona una plataforma robusta y escalable para comunicaciones en tiempo real y asincrónicas en un entorno distribuido.</p>
+<hr>
+<h2 id="system-design-and-discussion">System design and discussion</h2>
+<h3 id="github-link">GitHub Link</h3>
+<p>Link al repositorio <a href="https://github.com/massanaRoger/prac-1-sd">GitHub</a></p>
+<h3 id="introduction">Introduction</h3>
+<p>Para ejecutar la práctica, se requiere de un script para inicializar el servidor Redis (y RabbitMQ) y otro script para ejecutar los diversos clientes a posteriori.</p>
+<p>En esta practica, utilizamos el servidor Redis como 'servidor de nombres', donde guardamos los datos de los usuarios, concretamente:
+- Clave: Nombre del usuario
+- Valor:
+- IP: IP del usuario (localhost, pero se podría guardar una IP diferente)
+- Puerto: Puerto por el que el usuario creará un servidor para aceptar comunicacion gRPC</p>
+<p>Opcionalmente, para agilizar este proceso, nosotros decidimos crear tambien un script llamado 'init_script.py', el qual ejecuta el servidor Redis, la imagen RabbitMQ y 3 clientes por defecto.</p>
+<p>El script '<a href="http://server.py">server.py</a>' crea un servidor Redis para máximo 10 usuarios el qual se conecta al puerto 50051 de la maquina local (localhost). El cliente del servidor Redis se conecta al puerto 6379.</p>
+<p>El script 'client_script.py' se encarga de diferentes acciones:</p>
+<ol>
+<li>Crea un canal de connexión con el servidor de nombres Redis.</li>
+<li>Pide el nombre de usuario (no puede ser NULL)</li>
+<li>Crea una cola RabbitMQ de descubrimiento de usuarios activos (para la opción 3 del main)</li>
+<li>Busca o registra el usuario en Redis</li>
+<li>Finalmente, genera un servidor para que el usuario pueda recibir mensajes de otros usuarios de la aplicación.</li>
+</ol>
+<p>Cabe destacar la forma en la que se escoge un puerto para el servidor del usuario:</p>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_unused_port</span>():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((<span class="hljs-string">&#x27;localhost&#x27;</span>, <span class="hljs-number">0</span>))
+    _, port = s.getsockname()
+    s.close()
+    <span class="hljs-keyword">return</span> port
+</code></pre>
+<p>Con esta funcion, abrimos un socket dentro de la máquina local, y busca un puerto que en el momento no esta utilizandose, entonces, el puerto elegido siempre será un puerto difícil para que haya colisiones.</p>
+<p>Existe un paquete 'utils' el qual contiene la configuracion del puerto del servidor Redis y también una pequeña API de ayuda llamada '<a href="http://utilities.py">utilities.py</a>'. Esta API contiene funciones para registrar, buscar y eliminar usuarios y grupos, inicializar el chat privado del usuario, la conneexión con la instancia del servidor de nombres, y el seleccionador de puertos.</p>
+<h3 id="1-connect-to-a-private-chat">1. Connect to a private chat</h3>
+<ol>
+<li>Cuando un usuario pone su nombre en el script del cliente, creamos un servidor grpc que se ejecute en su sistema con un puerto aleatorio que no se esté usando.</li>
+<li>El usuario se conecta a otro chat privado especificando su id, si no existe el usuario da un error y vuelve a salir la lista de opciones.</li>
+<li>Para conectar el usuario con el otro cliente, hacemos una peticicion al servidor grpc creado por el otro cliente para crear una conexión.</li>
+<li>En el lado del servidor del cliente con quien queremos conectar, abrimos una terminal de chat para hablar con nosotros.</li>
+<li>Si no ha habido ningun error y el otro cliente ha podido abrir la terminal, abrimos nosotros también nuestra terminal.</li>
+<li>Cada usuario en su terminal de chat, el funcionamiento será que estaremos escuchando mensajes que lleguen a nuestro propio servidor, y estaremos enviando los mensajes al servidor del otro usuario, para ello al abrir la terminal le pasamos las direcciones ip y puertos de nuestro propio servidor y del servidor a quien queremos enviar los mensajes.</li>
+</ol>
+<h3 id="2-connect-to-a-group-chat">2. Connect to a group chat</h3>
+<ol>
+<li>El usuario seleccina la opción de conectarse a un chat grupal y pone el nombre del grupo.</li>
+<li>Si el grupo no existe, lo crea y lo guarda en Redis y pone a su valor un 1 que indica el número de usuarios , si ya existe, añade 1 al contador de usuarios activos.</li>
+<li>Si no hay ningún error, abrimos una ui para el grupo correspondiente, le pasamos al script de abrir la ui nuestro nombre y el nombre del chat</li>
+<li>En la ui, cada usuario conectado tendrá su propia cola y enviará los menajes a todas las colas de los usuarios activos en el mismo chat de grupo (fanout)</li>
+<li>En la ui del grupo, crearemos dos conexiones en dos threads distintos ya que no se puede compartir la misma conexion en dos threads a la vez usando pika, un thread serà el que recibirá los mensajes y los imprimirá por pantalla y el otro thread será el encargado de enviar a todas las colas el mensaje.</li>
+<li>Al decir la palabra clave exit, el usuario saldrá del programa y se restará en 1 la variable de contador de usuarios del chat.</li>
+</ol>
+<h3 id="3-discover-active-chats">3. Discover active chats</h3>
+<p>Para descubrir chats activos, podemos diferenciar dos casos:</p>
+<ul>
+<li><strong>Chats individuales</strong></li>
+</ul>
+<ol>
+<li>Creamos una cola por cada usuario que recibirá los eventos para ser descubierto. Esto se realiza antes de entrar en ninguna opción una vez se ha registrado en la aplicacion el usuario, para poder identificar así a todos los usuarios.</li>
+<li>Cuando un usuario quere descubrir los clientes conectados, toca la opción 3 y crea una cola donde recibirá los clientes conectados y envia un mensaje tipo <em>fanout</em> a todos los clientes con su nombre de usuario.</li>
+<li>Luego, cuando un usuario reciba este evento, enviará su nombre de usuario a la cola del usuario que quiere descubrir los clientes.</li>
+<li>El usuario que recibe los eventos escucha durante 3 segundos la cola mostrando los clientes conectados y luego deja de escuchar (por si hay retrasos en la comunicación).</li>
+</ol>
+<ul>
+<li><strong>Chats de grupo</strong></li>
+</ul>
+<ol>
+<li>Cuando un grupo es creado, creamos una cola para el grupo que escuchará los eventos para ser descubierto en un thread a parte.</li>
+<li>Igual que antes, cuando un usuario quere descubrir los grupos conectados, crea una cola donde recibirá los grupos conectados y envia un mensaje tipo fanout a todos los grupos con su nombre de grupo.</li>
+<li>Luego, cuando un grupo reciba este evento, enviará su nombre de grupo a la cola del usuario que quiere descubrir los clientes.</li>
+<li>El usuario que recibe los eventos escucha durante 3 segundos la cola mostrando los clientes conectados y luego deja de escuchar.</li>
+<li>Como tenemos guardado en redis el nombre de usuarios activos en un chat a la vez, cuando ponemos exit en el grupo enviamos un mensaje con el body remove_user, y luego el thread de cada grupo se hará una petición al servidor grpc para eliminar un usuario del grupo. Si el grupo llega a tener 0 usuarios, cerramos la conexión y la cola y dejamos de escuchar los eventos para ese grupo.</li>
+</ol>
+<h3 id="4-access-insult-channel">4. Access insult channel</h3>
+<ol>
+<li>El usuario selecciona la opción 4 y se abre una terminal con el chat de insultos.</li>
+<li>El chat de insultos consiste en una única cola donde todos los clientes envian y escuchan los mensajes a la vez.</li>
+<li>Cada cliente tendrá un thread escuchando a esa cola y otro thread que será el encargado de enviar los mensajes a la cola.</li>
+<li>Las peticiones se repartirán equitativamente a todos los clientes por como escuchan los clientes a una cola por defecto.</li>
+</ol>
+<h3 id="5-exit">5. Exit</h3>
+<p>Cuando un usuario quiere ssalir de la aplicación, este debe seleccionar la opción 5. Esta opción:</p>
+<ol>
+<li>Elimina el usuario del servidor Redis.</li>
+<li>Cierra el programa de la terminal.</li>
+</ol>
+<hr>
+<h2 id="questions">Questions</h2>
+<ol>
+<li><strong>Are private chats persistent? If not, how could we give them persistency?</strong></li>
+</ol>
+<p>En el sistema descrito, los chats privados no son inherentemente persistentes porque dependen de solicitudes directas entre clientes utilizando gRPC. Esto implica que los mensajes son transitorios y solo existen durante la sesión o mientras ambos clientes estén conectados y los retengan en memoria. Para dar persistencia a los chats privados, podríamos implementar una base de datos de mensajería, donde se guardarían los mensajes a medida que se envían o reciben.</p>
+<ol start="2">
+<li><strong>Are there stateful communication patterns in your system?</strong></li>
+</ol>
+<p>Sí, hay patrones de comunicación con estado en el sistema. La comunicación con estado es esencial para rastrear conversaciones en curso y asegurar la consistencia de los mensajes a través de las sesiones.</p>
+<p>Lo podemos encontrar en:
+- <strong>Chats grupales</strong>: Utilizando intercambios de <em><strong>RabbitMQ</strong></em> donde los mensajes se publican y se entregan a todos los suscriptores, manteniendo el estado de quién está suscrito y los mensajes que se han publicado durante la sesión.
+- <strong>Descubrimiento de chats</strong>: Donde se rastrean las sesiones de chat activas, y los clientes pueden consultar y recuperar chats activos en ese momento.
+- <strong>Chat de insultos</strong>: Donde se rastrean los usuarios activos en el chat de insultos, y los clientes pueden recibir y enviar a un usuario aleatorio un insulto.</p>
+<ol start="3">
+<li><strong>What kind of pattern do group chats rely on? In terms of functionality, compare transient and persistent communication in group chats using RabbitMQ.</strong></li>
+</ol>
+<p>Los chats grupales en este sistema se basan en un patrón de publicación-suscripción (pubsub) utilizando intercambios de RabbitMQ con comunicación persistente. Este patrón es eficiente para transmitir mensajes a múltiples clientes que están suscritos a un tema o grupo de chat particular.</p>
+<p><strong>Comunicación Transitoria</strong>: En los chats grupales transitorios, los mensajes se envían a los suscriptores activos sin almacenarse de manera persistente. Si un usuario no está conectado en el momento en que se envía el mensaje, no recibirán ese mensaje al reconectarse. Esto se implementa típicamente utilizando colas y cambios no duraderos en RabbitMQ.</p>
+<p><strong>Comunicación Persistente</strong>: Los chats grupales persistentes involucran la configuración de RabbitMQ para almacenar mensajes en disco antes de ser entregados a los suscriptores. Esto asegura que los mensajes no se pierdan si el broker se reinicia y permite a los clientes recibir mensajes enviados mientras estaban desconectados. Esto requiere colas y cambios duraderos. Nuestro código funciona con este tipo de comunicación, eso si, el usuario debe primero entrar una vez en el grupo para que se cree una cola de ese grupo vinculado al usuario. Entonces, si el usuario se desconecta, y por el grupo se envían mensajes, a la siguiente entrada del grupo, el usuario verá los mensajes guardados en la cola.</p>
+<ol start="4">
+<li><strong>Redis can also implement Queues and pubsub patterns. Would you prefer to use Redis than RabbitMQ for events ? Could you have transient and persistent group chats? Compare both approaches</strong></li>
+</ol>
+<p><strong>Redis vs RabbitMQ para Eventos</strong></p>
+<p><strong>Redis</strong>: Redis pubsub no soporta mensajes duraderos o persistentes de forma nativa, lo que lo hace menos ideal para escenarios donde la persistencia y fiabilidad del mensaje son cruciales.</p>
+<p><strong>RabbitMQ</strong>: Proporciona características como mensajes duraderos, entrega confiable y patrones de mensajería avanzados. RabbitMQ es típicamente más adecuado para escenarios de mensajería complejos que requieren alta fiabilidad y personalización.</p>
+<p><strong>Chats Grupales Transitorios y Persistentes</strong></p>
+<p><strong>Redis</strong>: Se pueden implementar chats grupales transitorios con pubsub de Redis, pero para la persistencia, necesitaremos almacenar manualmente los mensajes en estructuras de datos de Redis como listas o conjuntos ordenados, lo que añade complejidad a la lógica de entrega de mensajes.</p>
+<p><strong>RabbitMQ</strong>: Soporta tanto chats grupales transitorios como persistentes de manera más natural. Configurar RabbitMQ para la comunicación persistente es sencillo con cambios y colas duraderos.</p>
+
+            
+            
+        </body>
+        </html>
